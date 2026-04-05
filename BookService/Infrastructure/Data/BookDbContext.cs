@@ -43,8 +43,8 @@ namespace Infrastructure.Data
             if (!context.Customers.Any())
             {
                 context.Customers.AddRange(
-                    new Customer { FirstName = "Alice", LastName = "Johnson", Email = "alice@example.com", Phone = "111-1111" },
-                    new Customer { FirstName = "Bob", LastName = "Smith", Email = "bob@example.com", Phone = "222-2222" }
+                    new Customer { FirstName = "Alice", LastName = "Johnson", Email = "alice@example.com", PhoneNumber = "111-1111" },
+                    new Customer { FirstName = "Bob", LastName = "Smith", Email = "bob@example.com", PhoneNumber = "222-2222" }
                 );
                 context.SaveChanges();
             }
