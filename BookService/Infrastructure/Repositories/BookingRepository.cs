@@ -13,7 +13,11 @@ public class BookingRepository(BookDbContext context) : IBookingRepository
         await _context.Bookings.AsNoTracking().ToListAsync();
 
     public async Task<Booking?> GetByIdAsync(int id) =>
-        await _context.Bookings.FirstOrDefaultAsync(b => b.Id == id);
+      await _context.Bookings
+          .Include(b => b.Customer)
+          .Include(b => b.Room)
+          .Include(b => b.Billing)
+          .FirstOrDefaultAsync(b => b.Id == id);
 
     public async Task AddAsync(Booking booking)
     {

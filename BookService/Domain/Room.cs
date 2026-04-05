@@ -13,5 +13,7 @@ namespace Domain
         public string Type { get; set; } = string.Empty;
         public decimal PricePerNight { get; set; }
         public bool IsAvailable { get; set; } = true;
+        // Navigation property
+        public ICollection<Booking> Bookings { get; set; } = [];
     }
 }

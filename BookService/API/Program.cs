@@ -78,6 +78,12 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+// Create scope for seeding
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<BookDbContext>();
+    BookDbContext.SeedData(dbContext);
+}
 app.UseSerilogRequestLogging();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

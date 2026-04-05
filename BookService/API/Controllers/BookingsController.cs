@@ -1,8 +1,10 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Application.Services;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -16,15 +18,16 @@ public class BookingsController(IBookingService service) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _service.GetByIdAsync(id);
-        return result is null ? NotFound() : Ok(result);
+        var booking = await _service.GetByIdAsync(id);
+        return booking == null ? NotFound() : Ok(booking);
     }
 
+    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] BookingDto dto)
+    public async Task<IActionResult> CreateBooking([FromBody] BookingDto dto)
     {
         var booking = new Booking
         {
@@ -32,10 +35,11 @@ public class BookingsController(IBookingService service) : ControllerBase
             RoomId = dto.RoomId,
             CheckInDate = dto.CheckInDate,
             CheckOutDate = dto.CheckOutDate,
-            TotalAmount = dto.TotalAmount
+            TotalAmount = dto.TotalAmount,
+            Status = "Confirmed"
         };
-        var created = await _service.CreateAsync(booking);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        await _service.CreateAsync(booking);
+        return CreatedAtAction(nameof(GetById), new { id = booking.Id }, booking);
     }
 
     [HttpPut("{id:int}")]
