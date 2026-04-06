@@ -1,6 +1,6 @@
 <Solution>
-  <Project Path="D:/Hotel Managment System/BookService/API/API.csproj" Id="3a6633cd-94f9-4a2f-8aef-8204fa4262a4" />
-  <Project Path="D:/Hotel Managment System/BookService/Application/Application.csproj" Id="7caed90b-cc02-4a01-baa1-0c3f3bb3b417" />
-  <Project Path="D:/Hotel Managment System/BookService/Domain/Domain.csproj" Id="27b3b29c-3d6e-47dc-88fe-9f4226675562" />
-  <Project Path="D:/Hotel Managment System/BookService/Infrastructure/Infrastructure.csproj" Id="57d171a9-7d0e-4116-a849-1f676efa9214" />
+  <Project Path="API/API.csproj" />
+  <Project Path="Application/Application.csproj" />
+  <Project Path="Domain/Domain.csproj" />
+  <Project Path="Infrastructure/Infrastructure.csproj" />
 </Solution>
