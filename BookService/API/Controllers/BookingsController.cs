@@ -16,7 +16,41 @@ public class BookingsController(IBookingService service) : ControllerBase
     private readonly IBookingService _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+    public async Task<IActionResult> GetAll()
+    {
+        var bookings = await _service.GetAllAsync();
+        var result = bookings.Select(b => new BookingDto
+        {
+            Id = b.Id,
+            CustomerId = b.CustomerId,
+            RoomId = b.RoomId,
+            CheckInDate = b.CheckInDate,
+            CheckOutDate = b.CheckOutDate,
+            TotalAmount = b.TotalAmount,
+            Status = b.Status,
+            CreatedAt = b.CreatedAt,
+
+            Customer = new CustomerDto
+            {
+                Id = b.Customer.Id,
+                FirstName = b.Customer.FirstName,
+                LastName = b.Customer.LastName,
+                Email = b.Customer.Email,
+                PhoneNumber = b.Customer.PhoneNumber
+            },
+
+            Room = new RoomDto
+            {
+                Id = b.Room.Id,
+                RoomNumber = b.Room.RoomNumber,
+                Type = b.Room.Type,
+                PricePerNight = b.Room.PricePerNight
+            }
+        }).ToList();
+
+        return Ok(result);
+        return Ok(bookings);
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
