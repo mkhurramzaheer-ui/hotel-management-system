@@ -17,7 +17,20 @@ namespace Application.Services
         public async Task<Booking?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
         public async Task<Booking> CreateAsync(Booking booking)
         {
+            // 🔥 Check overlapping booking for same room
+            var existingBookings = await _repository.GetAllAsync();
+
+            bool isConflict = existingBookings.Any(b =>
+                b.RoomId == booking.RoomId &&
+                booking.CheckInDate < b.CheckOutDate &&
+                booking.CheckOutDate > b.CheckInDate
+            );
+
+            if (isConflict)
+                throw new Exception("This room is already booked for selected dates.");
+
             await _repository.AddAsync(booking);
+
             return booking;
         }
         public async Task UpdateAsync(int id, Booking updated)

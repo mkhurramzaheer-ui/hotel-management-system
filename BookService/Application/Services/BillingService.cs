@@ -20,6 +20,21 @@ namespace Application.Services
         public async Task<Billing?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
         public async Task<Billing> CreateAsync(Billing billing)
         {
+            var existing = (await _repository.GetAllAsync())
+                .FirstOrDefault(b => b.BookingId == billing.BookingId);
+
+            if (existing != null)
+            {
+                // 🔥 Update instead of creating duplicate
+                existing.Amount = billing.Amount;
+                existing.PaymentStatus = billing.PaymentStatus;
+                existing.BillingDate = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(existing);
+
+                return existing;
+            }
+
             await _repository.AddAsync(billing);
             return billing;
         }

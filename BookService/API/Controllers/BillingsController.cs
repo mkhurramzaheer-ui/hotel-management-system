@@ -55,7 +55,6 @@ public class BillingsController : ControllerBase
         }).ToList();
 
         return Ok(result);
-        return Ok(result);
     }
 
     [HttpGet("{id:int}")]
@@ -66,16 +65,30 @@ public class BillingsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Billing billing)
+    public async Task<IActionResult> Create([FromBody] CreateBillingDto billing)
     {
-        var created = await _service.CreateAsync(billing);
+        var newBilling = new Billing
+        {
+            BookingId = billing.BookingId,
+            Amount = billing.Amount,
+            PaymentStatus = billing.PaymentStatus,
+            BillingDate = DateTime.UtcNow
+        };
+        var created = await _service.CreateAsync(newBilling);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Billing billing)
+    public async Task<IActionResult> Update(int id, [FromBody] CreateBillingDto billing)
     {
-        await _service.UpdateAsync(id, billing);
+        var newBilling = new Billing
+        {
+            BookingId = billing.BookingId,
+            Amount = billing.Amount,
+            PaymentStatus = billing.PaymentStatus,
+            BillingDate = DateTime.UtcNow
+        };
+        await _service.UpdateAsync(id, newBilling);
         return NoContent();
     }
 
