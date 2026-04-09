@@ -1,0 +1,165 @@
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a6b32;
+  font-weight: 700;
+}
+
+.page-header h2 {
+  margin: 0 0 0.5rem;
+  color: #4b2e1f;
+}
+
+.page-header p {
+  margin: 0;
+  color: #6e5a4c;
+}
+
+.page-message {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #5f5147;
+}
+
+.page-message--error {
+  background: #f9e3df;
+  color: #8f4338;
+}
+
+.page-message--success {
+  background: #e5f4e2;
+  color: #2f6a38;
+}
+
+.room-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.room-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(93, 60, 29, 0.12);
+  border-radius: 1.4rem;
+  padding: 1.4rem;
+  box-shadow: 0 18px 35px rgba(84, 60, 39, 0.08);
+}
+
+.room-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #96704c;
+}
+
+.room-card h3 {
+  margin: 0.2rem 0 0;
+  color: #4b2e1f;
+}
+
+.room-card p {
+  color: #6e5a4c;
+}
+
+.status {
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: #e4f3e2;
+  color: #2f6a38;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.status--off {
+  background: #f4e0dc;
+  color: #8f4338;
+}
+
+.booking-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(93, 60, 29, 0.12);
+  border-radius: 1.4rem;
+  padding: 1.5rem;
+  box-shadow: 0 18px 35px rgba(84, 60, 39, 0.08);
+  display: grid;
+  gap: 0.85rem;
+  position: sticky;
+  top: 6.5rem;
+}
+
+.booking-panel h3 {
+  margin: 0;
+  color: #4b2e1f;
+}
+
+.selected-room,
+.helper-text,
+.estimate {
+  margin: 0;
+  color: #6e5a4c;
+}
+
+label {
+  font-weight: 600;
+  color: #5b4332;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #dbc8b6;
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  background: #fffdf9;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #b94d39;
+}
+
+button {
+  width: 100%;
+  margin-top: 0.75rem;
+  border: 0;
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(135deg, #6c4024, #b8802d);
+  color: white;
+  font-weight: 700;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 900px) {
+  .room-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-panel {
+    position: static;
+  }
+}

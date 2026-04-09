@@ -1,0 +1,48 @@
+<section class="page-header">
+  <span class="eyebrow">Customer Area</span>
+  <h2>My Bookings</h2>
+  <p>
+    This page now loads data from <strong>GET /api/Bookings</strong> using the JWT token.
+  </p>
+</section>
+
+@if (currentCustomerId) {
+  <p class="page-message">
+    Showing bookings for customer ID <strong>{{ currentCustomerId }}</strong>.
+  </p>
+} @else {
+  <p class="page-message">
+    Customer ID was not found in the token, so this page shows all bookings returned by the API.
+  </p>
+}
+
+@if (errorMessage()) {
+  <p class="page-message page-message--error">{{ errorMessage() }}</p>
+}
+
+@if (isLoading()) {
+  <p class="page-message">Loading bookings...</p>
+} @else if (!bookings().length) {
+  <p class="page-message">No bookings found yet.</p>
+} @else {
+  <section class="booking-list">
+    @for (booking of bookings(); track booking.id) {
+      <article class="booking-card">
+        <div class="booking-row">
+          <div>
+            <span class="label">Booking ID</span>
+            <h3>{{ booking.id }}</h3>
+          </div>
+          <span class="price">${{ booking.totalAmount }}</span>
+        </div>
+
+        <p><strong>Customer ID:</strong> {{ booking.customerId }}</p>
+        <p><strong>Room:</strong> {{ booking.room?.roomNumber || booking.roomId }}</p>
+        <p><strong>Room Type:</strong> {{ booking.room?.type || 'Not provided' }}</p>
+        <p><strong>Check In:</strong> {{ booking.checkInDate | date: 'mediumDate' }}</p>
+        <p><strong>Check Out:</strong> {{ booking.checkOutDate | date: 'mediumDate' }}</p>
+        <p><strong>Status:</strong> {{ booking.status || 'Unknown' }}</p>
+      </article>
+    }
+  </section>
+}

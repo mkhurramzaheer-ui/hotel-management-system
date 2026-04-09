@@ -1,0 +1,74 @@
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a6b32;
+  font-weight: 700;
+}
+
+.page-header h2 {
+  margin: 0 0 0.5rem;
+  color: #4b2e1f;
+}
+
+.page-header p,
+.booking-card p {
+  color: #6e5a4c;
+}
+
+.page-message {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #5f5147;
+}
+
+.page-message--error {
+  background: #f9e3df;
+  color: #8f4338;
+}
+
+.booking-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.booking-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(93, 60, 29, 0.12);
+  border-radius: 1.4rem;
+  padding: 1.5rem;
+  box-shadow: 0 18px 35px rgba(84, 60, 39, 0.08);
+}
+
+.booking-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #96704c;
+}
+
+.booking-card h3 {
+  margin: 0.2rem 0 0;
+  color: #4b2e1f;
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7c4c1f;
+}
