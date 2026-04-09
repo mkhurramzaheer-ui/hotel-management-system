@@ -5,23 +5,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookService.Infrastructure.Repositories;
 
-public class BookingRepository(BookDbContext context) : IBookingRepository
+using Microsoft.EntityFrameworkCore;
+
+public class BookingRepository : IBookingRepository
 {
-    private readonly BookDbContext _context = context;
+    private readonly BookDbContext _context;
 
-    public async Task<IEnumerable<Booking>> GetAllAsync() =>
-        await _context.Bookings.AsNoTracking().ToListAsync();
+    public BookingRepository(BookDbContext context)
+    {
+        _context = context;
+    }
 
-    public async Task<Booking?> GetByIdAsync(int id) =>
-      await _context.Bookings
-          .Include(b => b.Customer)
-          .Include(b => b.Room)
-          .Include(b => b.Billing)
-          .FirstOrDefaultAsync(b => b.Id == id);
+    public async Task<IEnumerable<Booking>> GetAllAsync()
+    {
+        return await _context.Bookings
+            .Include(b => b.Customer)
+            .Include(b => b.Room)
+            .ToListAsync();
+    }
+
+    public async Task<Booking?> GetByIdAsync(int id)
+    {
+        return await _context.Bookings
+            .Include(b => b.Customer)
+            .Include(b => b.Room)
+            .FirstOrDefaultAsync(b => b.Id == id);
+    }
 
     public async Task AddAsync(Booking booking)
     {
-        _context.Bookings.Add(booking);
+        await _context.Bookings.AddAsync(booking);
         await _context.SaveChangesAsync();
     }
 
@@ -33,9 +46,11 @@ public class BookingRepository(BookDbContext context) : IBookingRepository
 
     public async Task DeleteAsync(int id)
     {
-        var entity = await _context.Bookings.FindAsync(id);
-        if (entity == null) return;
-        _context.Bookings.Remove(entity);
-        await _context.SaveChangesAsync();
+        var booking = await _context.Bookings.FindAsync(id);
+        if (booking != null)
+        {
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync();
+        }
     }
 }
