@@ -1,0 +1,58 @@
+﻿@model DashboardViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row g-4">
+
+    <div class="col-md-3">
+        <div class="card bg-primary text-white p-3">
+            <h6>Total Rooms</h6>
+            <h2>@Model.TotalRooms</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-success text-white p-3">
+            <h6>Customers</h6>
+            <h2>@Model.TotalCustomers</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark p-3">
+            <h6>Bookings</h6>
+            <h2>@Model.TotalBookings</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-danger text-white p-3">
+            <h6>Revenue</h6>
+            <h2>$@Model.TotalRevenue</h2>
+        </div>
+    </div>
+    <div class="card mt-4 p-3">
+        <h5>Revenue Trend</h5>
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+<script>
+    const revenueData = @Html.Raw(Json.Serialize(ViewBag.RevenueData));
+
+    const labels = revenueData.map(x => x.date);
+    const values = revenueData.map(x => x.total);
+
+    new Chart(document.getElementById("revenueChart"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue',
+                data: values,
+                borderWidth: 2,
+                fill: false
+            }]
+        }
+    });
+</script>

@@ -1,0 +1,49 @@
+﻿@model List<BookingDto>
+
+@{
+    ViewData["Title"] = "Bookings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h3>Bookings</h3>
+    <a class="btn btn-primary" asp-action="Create">+ New Booking</a>
+</div>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Room</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td>@b.Id</td>
+                <td>@b.Customer?.FullName</td>
+                <td>@b.Room?.RoomNumber</td>
+                <td>@b.CheckInDate.ToShortDateString()</td>
+                <td>@b.CheckOutDate.ToShortDateString()</td>
+                <td>@b.TotalAmount</td>
+                <td>@b.Status</td>
+                <td>
+                    <a class="btn btn-danger btn-sm"
+                           asp-action="Delete"
+                           asp-route-id="@b.Id"
+                           onclick="return confirm('Delete booking?')">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,86 @@
+﻿@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hotel Admin Login</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+            body {
+                background: linear-gradient(135deg, #1e3c72, #2a5298);
+                height: 100vh;
+            }
+
+            .login-card {
+                border-radius: 15px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            }
+
+            .form-control {
+                border-radius: 10px;
+            }
+
+            .btn-custom {
+                border-radius: 10px;
+            }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+
+                <div class="card login-card p-4">
+                    <h3 class="text-center mb-4">Hotel Admin</h3>
+
+                    <!-- Error Message -->
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">
+                            @ViewBag.Error
+                        </div>
+                    }
+
+                    <form asp-action="Login" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input asp-for="UserName" class="form-control" placeholder="Enter username" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-custom">
+                                Login
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Scripts -->
+    <partial name="_ValidationScriptsPartial" />
+
+</body>
+</html>
