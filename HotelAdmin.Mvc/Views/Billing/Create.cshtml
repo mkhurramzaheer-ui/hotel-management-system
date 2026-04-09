@@ -1,0 +1,59 @@
+﻿@model CreateBillingDto
+
+@{
+    ViewData["Title"] = "Create Billing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Create Billing</h3>
+
+<form method="post">
+
+    <!-- Booking Dropdown -->
+    <div class="mb-3">
+        <label>Booking</label>
+        <select asp-for="BookingId" class="form-control" id="bookingSelect">
+            <option value="">-- Select Booking --</option>
+            @foreach (var b in ViewBag.Bookings)
+            {
+                <option value="@b.Id" data-amount="@b.TotalAmount">
+                    @b.Customer?.FullName - Room @b.Room?.RoomNumber
+                </option>
+            }
+        </select>
+    </div>
+
+    <!-- Amount -->
+    <div class="mb-3">
+        <label>Amount</label>
+        <input asp-for="Amount" class="form-control" id="amountField" />
+    </div>
+
+    <!-- Status -->
+    <div class="mb-3">
+        <label>Status</label>
+        <select asp-for="PaymentStatus" class="form-control">
+            <option value="Unpaid">Unpaid</option>
+            <option value="Paid">Paid</option>
+        </select>
+    </div>
+
+    <button class="btn btn-success">Save</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+
+</form>
+.<script>
+document.getElementById("bookingSelect").addEventListener("change", function () {
+
+const selectedOption = this.options[this.selectedIndex];
+const amount = selectedOption.getAttribute("data-amount");
+
+const amountField = document.getElementById("amountField");
+
+if (amount) {
+amountField.value = parseFloat(amount).toFixed(2);
+} else {
+amountField.value = "";
+}
+});
+</script>

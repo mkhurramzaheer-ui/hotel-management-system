@@ -1,0 +1,39 @@
+﻿@model List<CustomerDto>
+
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h3>Customers</h3>
+    <a class="btn btn-primary" asp-action="Create">+ Add Customer</a>
+</div>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th width="150">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.Id</td>
+                <td>@c.FullName</td>
+                <td>@c.Email</td>
+                <td>@c.PhoneNumber</td>
+                <td>
+                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@c.Id">Edit</a>
+                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@c.Id"
+                       onclick="return confirm('Delete this customer?')">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

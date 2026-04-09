@@ -1,0 +1,120 @@
+﻿@model BookingViewModel
+
+@{
+    ViewData["Title"] = "Create Booking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Create Booking</h3>
+<script>
+    const existingBookings = @Html.Raw(Json.Serialize(ViewBag.ExistingBookings));
+</script>
+<form method="post" onsubmit="return validateBooking()">
+
+    <!-- Customer -->
+    <div class="mb-3">
+        <label>Customer</label>
+        <select asp-for="CustomerId" class="form-control">
+            <option value="">-- Select Customer --</option>
+            @foreach (var c in Model.Customers)
+            {
+                <option value="@c.Id">@c.FullName</option>
+            }
+        </select>
+    </div>
+
+    <!-- Room -->
+    <div class="mb-3">
+        <label>Room</label>
+        <select asp-for="RoomId" class="form-control" id="roomSelect">
+            <option value="">-- Select Room --</option>
+            @foreach (var r in Model.Rooms)
+            {
+                <option value="@r.Id" data-price="@r.PricePerNight">
+                    @r.RoomNumber - @r.Type (@r.PricePerNight)
+                </option>
+            }
+        </select>
+    </div>
+
+    <!-- Dates -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label>Check In</label>
+            <input asp-for="CheckInDate" type="date" class="form-control" id="checkIn" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label>Check Out</label>
+            <input asp-for="CheckOutDate" type="date" class="form-control" id="checkOut" />
+        </div>
+    </div>
+
+    <!-- Total -->
+    <div class="mb-3">
+        <label>Total Amount</label>
+        <input asp-for="TotalAmount" class="form-control" id="totalAmount" readonly />
+    </div>
+
+    <button class="btn btn-success">Book</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+
+</form>
+<script>
+    function calculateTotal() {
+        const roomSelect = document.getElementById("roomSelect");
+        const checkIn = document.getElementById("checkIn").value;
+        const checkOut = document.getElementById("checkOut").value;
+        const totalField = document.getElementById("totalAmount");
+
+        if (!roomSelect.value || !checkIn || !checkOut) {
+            totalField.value = "";
+            return;
+        }
+
+        const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+        const pricePerNight = parseFloat(selectedOption.getAttribute("data-price"));
+
+        const start = new Date(checkIn);
+        const end = new Date(checkOut);
+
+        const timeDiff = end - start;
+        const nights = timeDiff / (1000 * 60 * 60 * 24);
+
+        if (nights <= 0) {
+            totalField.value = "";
+            return;
+        }
+
+        const total = nights * pricePerNight;
+
+        totalField.value = total.toFixed(2);
+    }
+
+    document.getElementById("roomSelect").addEventListener("change", calculateTotal);
+    document.getElementById("checkIn").addEventListener("change", calculateTotal);
+    document.getElementById("checkOut").addEventListener("change", calculateTotal);
+
+    function validateBooking() {
+        const roomId = document.getElementById("roomSelect").value;
+        const checkIn = new Date(document.getElementById("checkIn").value);
+        const checkOut = new Date(document.getElementById("checkOut").value);
+
+        if (!roomId || !checkIn || !checkOut) return true;
+
+        for (let b of existingBookings) {
+            if (b.roomId == roomId) {
+
+                const existingCheckIn = new Date(b.checkInDate);
+                const existingCheckOut = new Date(b.checkOutDate);
+
+                if (checkIn < existingCheckOut && checkOut > existingCheckIn) {
+                    alert("❌ Room already booked for selected dates");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+</script>

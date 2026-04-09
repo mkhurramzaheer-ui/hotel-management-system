@@ -1,0 +1,56 @@
+﻿@model List<BillingDto>
+
+@{
+    ViewData["Title"] = "Billing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h3>Billing</h3>
+    <a class="btn btn-primary" asp-action="Create">+ Add Billing</a>
+</div>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Room</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td>@b.Id</td>
+                <td>@b.Booking?.Customer?.FullName</td>
+                <td>@b.Booking?.Room?.RoomNumber</td>
+                <td>@b.Amount</td>
+                <td>
+                    @if (b.PaymentStatus == "Paid")
+                    {
+                        <span class="badge bg-success">Paid</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Unpaid</span>
+                    }
+                </td>
+                <td>@b.BillingDate.ToShortDateString()</td>
+                <td>
+                    <a class="btn btn-danger btn-sm"
+                           asp-action="Delete"
+                           asp-route-id="@b.Id"
+                           onclick="return confirm('Delete billing?')">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
