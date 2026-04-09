@@ -1,0 +1,28 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">HM</span>
+      <div>
+        <h1>Hotel User App</h1>
+        <p>Angular client for your .NET hotel booking API</p>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      @if (!isLoggedIn()) {
+        <a routerLink="/login" routerLinkActive="active-link">Login</a>
+      }
+
+      @if (isLoggedIn()) {
+        <a routerLink="/register" routerLinkActive="active-link">Register Customer</a>
+        <a routerLink="/rooms" routerLinkActive="active-link">Rooms</a>
+        <a routerLink="/my-bookings" routerLinkActive="active-link">Bookings</a>
+        <button type="button" class="logout-button" (click)="logout()">Logout</button>
+      }
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,65 @@
+<section class="auth-page">
+  <div class="auth-copy">
+    <span class="eyebrow">Customer Account</span>
+    <h2>Register</h2>
+    <p>
+      This page now sends customer data to <strong>POST /api/Customers</strong>
+      using the fields exposed by your API.
+    </p>
+
+    <div class="info-box">
+      <strong>Customer model</strong>
+      <p>FirstName, LastName, Email, PhoneNumber</p>
+    </div>
+  </div>
+
+  <form class="auth-card" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <h3>Create Account</h3>
+
+    <label for="first-name">First Name</label>
+    <input id="first-name" type="text" formControlName="firstName" placeholder="Ali" />
+    @if (registerForm.controls.firstName.touched && registerForm.controls.firstName.invalid) {
+      <small class="error-text">First name is required.</small>
+    }
+
+    <label for="last-name">Last Name</label>
+    <input id="last-name" type="text" formControlName="lastName" placeholder="Khan" />
+    @if (registerForm.controls.lastName.touched && registerForm.controls.lastName.invalid) {
+      <small class="error-text">Last name is required.</small>
+    }
+
+    <label for="register-email">Email</label>
+    <input
+      id="register-email"
+      type="email"
+      formControlName="email"
+      placeholder="ali@example.com"
+    />
+    @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+      <small class="error-text">Enter a valid email address.</small>
+    }
+
+    <label for="phone-number">Phone Number</label>
+    <input
+      id="phone-number"
+      type="tel"
+      formControlName="phoneNumber"
+      placeholder="+92 300 1234567"
+    />
+    @if (registerForm.controls.phoneNumber.touched && registerForm.controls.phoneNumber.invalid) {
+      <small class="error-text">Phone number is required.</small>
+    }
+
+    @if (errorMessage) {
+      <p class="error-banner">{{ errorMessage }}</p>
+    }
+
+    @if (successMessage) {
+      <p class="success-banner">{{ successMessage }}</p>
+    }
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Registering...' : 'Register' }}
+    </button>
+  </form>
+</section>

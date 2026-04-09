@@ -1,0 +1,98 @@
+<section class="page-header">
+  <span class="eyebrow">Room Catalog</span>
+  <h2>Available Rooms</h2>
+  <p>
+    This page now loads rooms from <strong>GET /api/Rooms</strong> and can create
+    bookings with <strong>POST /api/Bookings</strong>.
+  </p>
+</section>
+
+@if (errorMessage()) {
+  <p class="page-message page-message--error">{{ errorMessage() }}</p>
+}
+
+@if (isLoading()) {
+  <p class="page-message">Loading rooms...</p>
+} @else {
+  <section class="room-layout">
+    <div class="room-grid">
+      @for (room of rooms(); track room.id) {
+        <article class="room-card">
+          <div class="room-card__top">
+            <div>
+              <span class="label">Room Number</span>
+              <h3>{{ room.roomNumber }}</h3>
+            </div>
+            <span class="status" [class.status--off]="!room.isAvailable">
+              {{ room.isAvailable ? 'Available' : 'Booked' }}
+            </span>
+          </div>
+
+          <p><strong>Type:</strong> {{ room.type }}</p>
+          <p><strong>Price Per Night:</strong> ${{ room.pricePerNight }}</p>
+
+          <button
+            type="button"
+            [disabled]="!room.isAvailable"
+            (click)="selectRoom(room)"
+          >
+            {{ room.isAvailable ? 'Book This Room' : 'Not Available' }}
+          </button>
+        </article>
+      }
+    </div>
+
+    <form class="booking-panel" [formGroup]="bookingForm" (ngSubmit)="createBooking()">
+      <span class="eyebrow">Booking Form</span>
+      <h3>Book Selected Room</h3>
+
+      @if (selectedRoom()) {
+        <p class="selected-room">
+          Selected room: <strong>{{ selectedRoom()!.roomNumber }}</strong>
+          ({{ selectedRoom()!.type }})
+        </p>
+      } @else {
+        <p class="selected-room">Choose an available room to begin.</p>
+      }
+
+      <label for="customer-id">Customer ID</label>
+      <input
+        id="customer-id"
+        type="number"
+        formControlName="customerId"
+        placeholder="Enter customer ID"
+      />
+      @if (currentCustomerId) {
+        <small class="helper-text">Auto-detected from your login token: {{ currentCustomerId }}</small>
+      } @else {
+        <small class="helper-text">
+          Your JWT did not expose a customer ID, so enter it manually for now.
+        </small>
+      }
+
+      <label for="check-in-date">Check In Date</label>
+      <input id="check-in-date" type="date" formControlName="checkInDate" />
+
+      <label for="check-out-date">Check Out Date</label>
+      <input id="check-out-date" type="date" formControlName="checkOutDate" />
+
+      @if (selectedRoom() && getEstimatedTotal() > 0) {
+        <p class="estimate">
+          Estimated total: <strong>${{ getEstimatedTotal() }}</strong>
+        </p>
+      }
+
+      @if (bookingError()) {
+        <p class="page-message page-message--error">{{ bookingError() }}</p>
+      }
+
+      @if (bookingMessage()) {
+        <p class="page-message page-message--success">{{ bookingMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="!selectedRoom() || isSubmitting()">
+        {{ isSubmitting() ? 'Creating Booking...' : 'Create Booking' }}
+      </button>
+    </form>
+  </section>
+}

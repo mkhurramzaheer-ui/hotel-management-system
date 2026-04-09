@@ -1,0 +1,56 @@
+<section class="auth-page">
+  <div class="auth-copy">
+    <span class="eyebrow">Step 2: Page Structure</span>
+    <h2>Login</h2>
+    <p>
+      This page will let a customer sign in with the JWT token returned by your .NET API.
+      It is now connected to <strong>POST /api/Auth/login</strong>.
+    </p>
+
+    <ul>
+      <li>Customer enters email and password.</li>
+      <li>Angular sends credentials to your API.</li>
+      <li>API returns JWT token.</li>
+      <li>Angular stores the token and uses it for protected requests.</li>
+    </ul>
+  </div>
+
+  <form class="auth-card" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <h3>Customer Login</h3>
+
+    <label for="login-email">Email</label>
+    <input
+      id="login-email"
+      type="text"
+      formControlName="username"
+      placeholder="customer@example.com"
+    />
+    @if (loginForm.controls.username.touched && loginForm.controls.username.invalid) {
+      <small class="error-text">Username or email is required.</small>
+    }
+
+    <label for="login-password">Password</label>
+    <input
+      id="login-password"
+      type="password"
+      formControlName="password"
+      placeholder="Enter password"
+    />
+    @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+      <small class="error-text">Password is required.</small>
+    }
+
+    @if (errorMessage) {
+      <p class="error-banner">{{ errorMessage }}</p>
+    }
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Logging in...' : 'Login' }}
+    </button>
+
+    <p class="helper-text">
+      New customer?
+      <a routerLink="/register">Create an account</a>
+    </p>
+  </form>
+</section>
