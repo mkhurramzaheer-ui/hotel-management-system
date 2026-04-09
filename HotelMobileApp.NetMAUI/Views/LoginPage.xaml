@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HotelMobileApp.NetMAUI.Views.LoginPage"
+             Title="Login"
+             BackgroundColor="#F6F1E9">
+    <ScrollView>
+        <VerticalStackLayout Padding="24,60,24,24" Spacing="18">
+            <Label Text="Hotel Booking"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   TextColor="#1F3A5F" />
+
+            <Label Text="Sign in to continue to the mobile app."
+                   FontSize="16"
+                   TextColor="#5A6872" />
+
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    Padding="20">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Username" TextColor="#1F3A5F" />
+                    <Entry Text="{Binding Username}"
+                           Placeholder="Enter username"
+                           ClearButtonVisibility="WhileEditing" />
+
+                    <Label Text="Password" TextColor="#1F3A5F" />
+                    <Entry Text="{Binding Password}"
+                           Placeholder="Enter password"
+                           IsPassword="True"
+                           ClearButtonVisibility="WhileEditing" />
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="#B42318" />
+
+                    <Button Text="Login"
+                            Command="{Binding LoginCommand}"
+                            HeightRequest="50"
+                            CornerRadius="14"
+                            BackgroundColor="#1F3A5F"
+                            TextColor="White" />
+
+                    <Label Text="Demo login: admin / password"
+                           FontSize="12"
+                           TextColor="#667085" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
