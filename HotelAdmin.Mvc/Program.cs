@@ -1,10 +1,15 @@
+using HotelAdmin.Mvc.Filters;
 using HotelAdmin.Mvc.Interfaces;
+using HotelAdmin.Mvc.Middleware;
 using HotelAdmin.Mvc.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Add services FIRST
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<SuccessMessageFilter>();
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession();
@@ -18,18 +23,20 @@ builder.Services.AddHttpClient<IApiService, ApiService>(client =>
 var app = builder.Build();
 
 // ✅ Middleware pipeline
-if (!app.Environment.IsDevelopment())
-{
+//if (!app.Environment.IsDevelopment())
+//{
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
-}
+//}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession(); // must be before endpoints
+app.UseSession(); // must be before middleware
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthorization();
 
