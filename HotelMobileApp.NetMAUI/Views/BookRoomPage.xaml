@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:HotelMobileApp.NetMAUI.ViewModels"
+             x:Class="HotelMobileApp.NetMAUI.Views.BookRoomPage"
+             x:DataType="viewmodels:BookRoomViewModel"
+             Title="Book a Room"
+             BackgroundColor="#F0EDE8">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,50,20,32" Spacing="20">
+
+            <!-- Header -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="🛎️ New Booking"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#1F3A5F" />
+                <Label Text="Fill in the details to reserve a room"
+                       FontSize="14"
+                       TextColor="#8A9BB0" />
+            </VerticalStackLayout>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="#1F3A5F"
+                               HeightRequest="44" />
+
+            <!-- Error Message -->
+            <Border BackgroundColor="#FEE4E2"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0"
+                    Padding="14,10"
+                    IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}">
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#B42318"
+                       FontSize="13" />
+            </Border>
+
+            <!-- Guest Selection -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0"
+                    Padding="20">
+                <VerticalStackLayout Spacing="14">
+
+                    <Label Text="GUEST"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="#8A9BB0"
+                           CharacterSpacing="2" />
+
+                    <Border BackgroundColor="#F5F5F7"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            Padding="4,0">
+                        <Picker Title="Select a customer"
+                                ItemsSource="{Binding Customers}"
+                                SelectedItem="{Binding SelectedCustomer}"
+                                ItemDisplayBinding="{Binding FullName}"
+                                TextColor="#1F3A5F"
+                                TitleColor="#8A9BB0"
+                                BackgroundColor="Transparent"
+                                FontSize="15" />
+                    </Border>
+
+                    <!-- Selected Customer Info -->
+                    <Border BackgroundColor="#EBF0F8"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            Padding="12,10"
+                            IsVisible="{Binding SelectedCustomer, Converter={StaticResource IsNotNullConverter}}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0"
+                                   Text="👤"
+                                   FontSize="20"
+                                   VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                <Label Text="{Binding SelectedCustomer.FullName}"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F3A5F" />
+                                <Label Text="{Binding SelectedCustomer.Email}"
+                                       FontSize="12"
+                                       TextColor="#5A6872" />
+                                <Label Text="{Binding SelectedCustomer.PhoneNumber}"
+                                       FontSize="12"
+                                       TextColor="#5A6872" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Room Selection -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0"
+                    Padding="20">
+                <VerticalStackLayout Spacing="14">
+
+                    <Label Text="ROOM"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="#8A9BB0"
+                           CharacterSpacing="2" />
+
+                    <Border BackgroundColor="#F5F5F7"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            Padding="4,0">
+                        <Picker Title="Select an available room"
+                                ItemsSource="{Binding AvailableRooms}"
+                                SelectedItem="{Binding SelectedRoom}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                TextColor="#1F3A5F"
+                                TitleColor="#8A9BB0"
+                                BackgroundColor="Transparent"
+                                FontSize="15" />
+                    </Border>
+
+                    <!-- Selected Room Info -->
+                    <Border BackgroundColor="#E6F7EF"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            Padding="12,10"
+                            IsVisible="{Binding SelectedRoom, Converter={StaticResource IsNotNullConverter}}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Label Grid.Column="0"
+                                   Text="🛏️"
+                                   FontSize="20"
+                                   VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                <Label Text="{Binding SelectedRoom.DisplayName}"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F3A5F" />
+                                <Label Text="{Binding SelectedRoom.Type}"
+                                       FontSize="12"
+                                       TextColor="#5A6872" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="{Binding SelectedRoom.PricePerNight, StringFormat='${0:F0}/night'}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#2E7D5E"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Dates -->
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0"
+                    Padding="20">
+                <VerticalStackLayout Spacing="14">
+
+                    <Label Text="DATES"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="#8A9BB0"
+                           CharacterSpacing="2" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="Check-in"
+                                   FontSize="13"
+                                   TextColor="#5A6872" />
+                            <Border BackgroundColor="#F5F5F7"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    Padding="4,0">
+                                <DatePicker Date="{Binding CheckInDate}"
+                                            MinimumDate="{Binding MinDate}"
+                                            TextColor="#1F3A5F"
+                                            BackgroundColor="Transparent"
+                                            FontSize="14" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Check-out"
+                                   FontSize="13"
+                                   TextColor="#5A6872" />
+                            <Border BackgroundColor="#F5F5F7"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    Padding="4,0">
+                                <DatePicker Date="{Binding CheckOutDate}"
+                                            MinimumDate="{Binding MinDate}"
+                                            TextColor="#1F3A5F"
+                                            BackgroundColor="Transparent"
+                                            FontSize="14" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Duration Badge -->
+                    <Border BackgroundColor="#FFF8E6"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0"
+                            Padding="12,8"
+                            HorizontalOptions="Start">
+                        <Label FontSize="13" TextColor="#7A5C00">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="📅  " />
+                                    <Span Text="{Binding NightsCount}" FontAttributes="Bold" />
+                                    <Span Text=" night(s)" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Total Summary -->
+            <Border BackgroundColor="#1F3A5F"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0"
+                    Padding="20"
+                    IsVisible="{Binding CanBook}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="Total Amount"
+                               FontSize="13"
+                               TextColor="#8AB4D0" />
+                        <Label Text="{Binding TotalAmount, StringFormat='${0:F2}'}"
+                               FontSize="30"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1"
+                           Text="{Binding NightsCount, StringFormat='{0}N'}"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#8AB4D0"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="10">
+                <Button Text="Confirm Booking"
+                        Command="{Binding BookCommand}"
+                        IsEnabled="{Binding CanBook}"
+                        HeightRequest="54"
+                        CornerRadius="16"
+                        BackgroundColor="#1F3A5F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="16" />
+
+                <Button Text="Cancel"
+                        Command="{Binding CancelCommand}"
+                        HeightRequest="48"
+                        CornerRadius="16"
+                        BackgroundColor="Transparent"
+                        TextColor="#5A6872"
+                        BorderColor="#D0D5DD"
+                        BorderWidth="1"
+                        FontSize="15" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

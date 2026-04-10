@@ -9,7 +9,11 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Value Converters -->
             <helpers:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <helpers:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <helpers:IntIsZeroConverter x:Key="IntIsZeroConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

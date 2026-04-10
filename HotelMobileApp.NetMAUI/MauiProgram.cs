@@ -32,12 +32,13 @@ public static class MauiProgram
             BaseUrl = apiBaseUrl
         });
 
+        // Storage
         builder.Services.AddSingleton<ITokenStorage, SecureTokenStorage>();
 
+        // HttpClient
         builder.Services.AddSingleton(serviceProvider =>
         {
             var apiSettings = serviceProvider.GetRequiredService<ApiSettings>();
-
             return new HttpClient
             {
                 BaseAddress = new Uri(apiSettings.BaseUrl),
@@ -45,18 +46,28 @@ public static class MauiProgram
             };
         });
 
+        // Services
         builder.Services.AddSingleton<IApiClient, ApiClient>();
         builder.Services.AddSingleton<IAuthService, AuthService>();
         builder.Services.AddSingleton<IRoomService, RoomService>();
         builder.Services.AddSingleton<ICustomerService, CustomerService>();
         builder.Services.AddSingleton<IBookingService, BookingService>();
         builder.Services.AddSingleton<INavigationService, NavigationService>();
+
+        // Shell
         builder.Services.AddSingleton<AppShell>();
+
+        // ViewModels — Transient so each navigation gets fresh state
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();
+        builder.Services.AddTransient<BookRoomViewModel>();
+
+        // Pages — Transient so Shell can resolve fresh instances
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<DashboardPage>();
+        builder.Services.AddTransient<BookRoomPage>();
 
+        // MediatR
         builder.Services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssembly(typeof(MauiProgram).Assembly);
@@ -72,9 +83,11 @@ public static class MauiProgram
     private static string GetApiBaseUrl()
     {
 #if ANDROID
-        return "http://10.0.2.2:8080/";
+        return "http://192.168.100.8:8080/";  // your PC's WiFi IP
+#elif WINDOWS
+    return "http://localhost:8080/";
 #else
-        return "http://localhost:8080/";
+    return "http://localhost:8080/";
 #endif
     }
 }
