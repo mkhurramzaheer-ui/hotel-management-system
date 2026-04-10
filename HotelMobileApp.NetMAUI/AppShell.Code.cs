@@ -10,6 +10,9 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
+        // Register the BookRoom route for Shell navigation
+        Routing.RegisterRoute(AppRoutes.BookRoom, typeof(BookRoomPage));
+
         var dashboardPage = Application.Current?.Handler?.MauiContext?.Services.GetRequiredService<DashboardPage>();
         if (dashboardPage is null)
         {
