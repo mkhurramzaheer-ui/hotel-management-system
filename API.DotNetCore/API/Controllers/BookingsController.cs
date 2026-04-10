@@ -61,7 +61,7 @@ public class BookingsController(IBookingService service) : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateBooking([FromBody] BookingDto dto)
+    public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDto dto)
     {
         var booking = new Booking
         {
@@ -77,8 +77,17 @@ public class BookingsController(IBookingService service) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Booking booking)
+    public async Task<IActionResult> Update(int id, [FromBody] CreateBookingDto dto)
     {
+        var booking = new Booking
+        {
+            CustomerId = dto.CustomerId,
+            RoomId = dto.RoomId,
+            CheckInDate = dto.CheckInDate,
+            CheckOutDate = dto.CheckOutDate,
+            TotalAmount = dto.TotalAmount,
+            Status = "Confirmed"
+        };
         await _service.UpdateAsync(id, booking);
         return NoContent();
     }

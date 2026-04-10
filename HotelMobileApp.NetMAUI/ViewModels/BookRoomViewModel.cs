@@ -135,6 +135,7 @@ public partial class BookRoomViewModel(
 
             var request = new CreateBookingRequest
             {
+                Id = 0, // API will assign ID
                 CustomerId = SelectedCustomer!.Id,
                 RoomId = SelectedRoom!.Id,
                 CheckInDate = CheckInDate,
@@ -156,6 +157,10 @@ public partial class BookRoomViewModel(
         catch (HttpRequestException ex)
         {
             ErrorMessage = $"Booking failed: {ex.Message}";
+            await Application.Current!.Windows[0].Page!.DisplayAlert(
+                "Booking Failed ✗",
+                ErrorMessage,
+                "OK");
         }
         finally
         {

@@ -83,7 +83,7 @@ public static class MauiProgram
     private static string GetApiBaseUrl()
     {
 #if ANDROID
-        return "http://192.168.100.8:8080/";  // your PC's WiFi IP
+        return "http://10.0.2.2:8080/";  // your PC's WiFi IP
 #elif WINDOWS
     return "http://localhost:8080/";
 #else
