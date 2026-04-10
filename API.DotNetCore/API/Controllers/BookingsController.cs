@@ -72,8 +72,19 @@ public class BookingsController(IBookingService service) : ControllerBase
             TotalAmount = dto.TotalAmount,
             Status = "Confirmed"
         };
-        await _service.CreateAsync(booking);
-        return CreatedAtAction(nameof(GetById), new { id = booking.Id }, booking);
+        var created = await _service.CreateAsync(booking);
+        var response = new CreateBookingDto
+        {
+            Id = created.Id,
+            CustomerId = created.CustomerId,
+            RoomId = created.RoomId,
+            CheckInDate = created.CheckInDate,
+            CheckOutDate = created.CheckOutDate,
+            TotalAmount = created.TotalAmount,
+            Status = created.Status,
+            CreatedAt = created.CreatedAt
+        };
+        return CreatedAtAction(nameof(GetById), new { id = booking.Id }, response);
     }
 
     [HttpPut("{id:int}")]
