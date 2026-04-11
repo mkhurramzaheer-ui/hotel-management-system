@@ -1,0 +1,176 @@
+@page "/bookings"
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Bookings – Hotel Admin</PageTitle>
+
+<div class="ha-page-header">
+    <h1 class="ha-page-title" style="margin:0">Bookings</h1>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenAdd" Class="ha-add-btn">
+        New Booking
+    </MudButton>
+</div>
+
+<!-- Summary chips -->
+<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+    <MudChip T="string" Color="Color.Default" Variant="Variant.Outlined" Size="Size.Small">
+        Total: @_bookings.Count
+    </MudChip>
+    <MudChip T="string" Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">
+        Confirmed: @_bookings.Count(b => b.Status?.ToLower() == "confirmed")
+    </MudChip>
+    <MudChip T="string" Color="Color.Warning" Variant="Variant.Outlined" Size="Size.Small">
+        Pending: @_bookings.Count(b => b.Status?.ToLower() == "pending")
+    </MudChip>
+    <MudChip T="string" Color="Color.Error" Variant="Variant.Outlined" Size="Size.Small">
+        Cancelled: @_bookings.Count(b => b.Status?.ToLower() == "cancelled")
+    </MudChip>
+</div>
+
+<MudCard Class="ha-table-card" Elevation="0">
+    <MudTable Items="_bookings" Loading="_loading" LoadingProgressColor="Color.Primary"
+              Hover="true" Dense="false" RowsPerPage="10">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6"
+                     Style="font-family:'DM Serif Display',serif;color:#1a237e;font-weight:400">
+                Booking Records
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchStr" Placeholder="Search…"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Style="max-width:220px" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy='new Func<BookingDto,object>(b=>b.Id)'>#</MudTableSortLabel></MudTh>
+            <MudTh>Customer</MudTh>
+            <MudTh>Room</MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<BookingDto,object>(b=>b.CheckInDate)'>Check In</MudTableSortLabel></MudTh>
+            <MudTh>Check Out</MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<BookingDto,object>(b=>b.TotalAmount)'>Total</MudTableSortLabel></MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh Style="text-align:right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Id</MudText>
+            </MudTd>
+            <MudTd>
+                <div class="ha-avatar-cell">
+                    <MudAvatar Color="Color.Secondary" Size="Size.Small"
+                               Style="font-size:.8rem;font-weight:700">
+                        @{ var name = context.Customer?.FullName ?? "?"; }
+                        @(name.Length > 0 ? char.ToUpper(name[0]) : '?')
+                    </MudAvatar>
+                    <strong>@(context.Customer?.FullName ?? $"Customer #{context.CustomerId}")</strong>
+                </div>
+            </MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">
+                    @(context.Room?.RoomNumber ?? $"#{context.RoomId}")
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <div>
+                    <strong>@context.CheckInDate.ToString("MMM dd, yyyy")</strong>
+                </div>
+            </MudTd>
+            <MudTd>@context.CheckOutDate.ToString("MMM dd, yyyy")</MudTd>
+            <MudTd>
+                <strong style="color:#1a237e">$@context.TotalAmount.ToString("N2")</strong>
+            </MudTd>
+            <MudTd>
+                @{
+                    var cls = context.Status?.ToLower() switch
+                    {
+                        "confirmed" => "ha-badge ha-badge-green",
+                        "cancelled" => "ha-badge ha-badge-red",
+                        "pending"   => "ha-badge ha-badge-amber",
+                        _           => "ha-badge ha-badge-blue"
+                    };
+                }
+                <span class="@cls">@context.Status</span>
+            </MudTd>
+            <MudTd Style="text-align:right">
+                <MudTooltip Text="Delete Booking">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   OnClick="() => Delete(context.Id)" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <div style="text-align:center;padding:48px 0">
+                <MudIcon Icon="@Icons.Material.Filled.BookOnline"
+                         Style="font-size:3rem;color:#c5cae9" />
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
+                    No bookings found
+                </MudText>
+            </div>
+        </NoRecordsContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,25,50}" />
+        </PagerContent>
+    </MudTable>
+</MudCard>
+
+@code {
+    private List<BookingDto> _bookings = new();
+    private bool _loading = true;
+    private string _searchStr = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login"); return; }
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        _loading  = true;
+        _bookings = await Mediator.SendAsync(new GetBookingsRequest());
+        _loading  = false;
+    }
+
+    private async Task OpenAdd()
+    {
+        var customers = await Mediator.SendAsync(new GetCustomersRequest());
+        var rooms     = await Mediator.SendAsync(new GetRoomsRequest());
+
+        var p = new DialogParameters
+        {
+            ["Booking"]   = new CreateBookingRequest { Status = "Confirmed" },
+            ["Customers"] = customers,
+            ["Rooms"]     = rooms
+        };
+        var opts = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            CloseButton = true, CloseOnEscapeKey = true
+        };
+        var d = await DialogService.ShowAsync<BookingDialog>("New Booking", p, opts);
+        if (!(await d.Result).Canceled) await Load();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Confirm Delete", "Delete this booking permanently?",
+            yesText: "Delete", cancelText: "Cancel");
+        if (confirm != true) return;
+
+        var ok = await Mediator.SendAsync(new DeleteBookingRequest(id));
+        Snackbar.Add(ok ? "Booking deleted." : "Failed to delete.",
+                     ok ? Severity.Success : Severity.Error);
+        if (ok) await Load();
+    }
+}

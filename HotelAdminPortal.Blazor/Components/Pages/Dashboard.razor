@@ -1,0 +1,236 @@
+@page "/"
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Dashboard – Hotel Admin</PageTitle>
+
+@if (_loading)
+{
+    <div style="display:flex;justify-content:center;padding:60px">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else
+{
+    <h1 class="ha-page-title">Dashboard</h1>
+
+    <!-- ── Stat Cards ──────────────────────────────────────────── -->
+    <MudGrid Spacing="3" Class="mb-5">
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Class="ha-stat-card ha-card-blue" Elevation="0">
+                <span class="ha-stat-icon">🏠</span>
+                <div class="ha-stat-label">Total Rooms</div>
+                <div class="ha-stat-value">@_stats.TotalRooms</div>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Class="ha-stat-card ha-card-green" Elevation="0">
+                <span class="ha-stat-icon">👥</span>
+                <div class="ha-stat-label">Customers</div>
+                <div class="ha-stat-value">@_stats.TotalCustomers</div>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Class="ha-stat-card ha-card-amber" Elevation="0">
+                <span class="ha-stat-icon">📋</span>
+                <div class="ha-stat-label">Bookings</div>
+                <div class="ha-stat-value">@_stats.TotalBookings</div>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Class="ha-stat-card ha-card-red" Elevation="0">
+                <span class="ha-stat-icon">💰</span>
+                <div class="ha-stat-label">Revenue</div>
+                <div class="ha-stat-value">$@_stats.TotalRevenue.ToString("N0")</div>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- ── Charts & Quick Links ────────────────────────────────── -->
+    <MudGrid Spacing="3">
+        <MudItem xs="12" md="8">
+            <MudCard Class="ha-table-card" Elevation="0">
+                <div class="ha-table-header">
+                    <h6>Revenue Trend</h6>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                        @DateTime.Now.Year
+                    </MudChip>
+                </div>
+                @if (_stats.RevenueTrend.Any())
+                {
+                    var maxVal = _stats.RevenueTrend.Max(r => r.Amount);
+                    <div class="ha-chart-wrap" style="padding:20px 24px;height:220px;align-items:flex-end">
+                        @foreach (var pt in _stats.RevenueTrend)
+                        {
+                            var pct = maxVal > 0 ? (int)(pt.Amount / maxVal * 160) : 4;
+                            <div class="ha-bar-col">
+                                <span style="font-size:.72rem;color:#546e7a;margin-bottom:2px">
+                                    $@((pt.Amount/1000).ToString("0.0"))k
+                                </span>
+                                <div class="ha-bar" style="height:@(pct)px"></div>
+                                <div class="ha-bar-label">@pt.Label</div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div style="display:flex;align-items:center;justify-content:center;height:200px">
+                        <div style="text-align:center">
+                            <MudIcon Icon="@Icons.Material.Filled.BarChart"
+                                     Style="font-size:3rem;color:#c5cae9" />
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">
+                                No revenue data yet
+                            </MudText>
+                        </div>
+                    </div>
+                }
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Class="ha-table-card" Elevation="0" Style="height:100%">
+                <div class="ha-table-header"><h6>Quick Actions</h6></div>
+                <MudList T="string" Dense="true" Class="pa-1">
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.MeetingRoom"
+                                 IconColor="Color.Primary"
+                                 OnClick='() => Nav.NavigateTo("/rooms")'>
+                        <MudText Typo="Typo.body2"><strong>Manage Rooms</strong></MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @_stats.TotalRooms rooms total
+                        </MudText>
+                    </MudListItem>
+                    <MudDivider />
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.People"
+                                 IconColor="Color.Success"
+                                 OnClick='() => Nav.NavigateTo("/customers")'>
+                        <MudText Typo="Typo.body2"><strong>Manage Customers</strong></MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @_stats.TotalCustomers registered
+                        </MudText>
+                    </MudListItem>
+                    <MudDivider />
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.BookOnline"
+                                 IconColor="Color.Warning"
+                                 OnClick='() => Nav.NavigateTo("/bookings")'>
+                        <MudText Typo="Typo.body2"><strong>New Booking</strong></MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @_stats.TotalBookings active bookings
+                        </MudText>
+                    </MudListItem>
+                    <MudDivider />
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.Receipt"
+                                 IconColor="Color.Error"
+                                 OnClick='() => Nav.NavigateTo("/billing")'>
+                        <MudText Typo="Typo.body2"><strong>View Billing</strong></MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            $@_stats.TotalRevenue.ToString("N0") total revenue
+                        </MudText>
+                    </MudListItem>
+                </MudList>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- ── Recent Bookings ─────────────────────────────────────── -->
+    @if (_recentBookings.Any())
+    {
+        <MudCard Class="ha-table-card mt-4" Elevation="0">
+            <div class="ha-table-header">
+                <h6>Recent Bookings</h6>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small"
+                           OnClick='() => Nav.NavigateTo("/bookings")'>
+                    View All
+                </MudButton>
+            </div>
+            <MudTable Items="_recentBookings" Dense="true" Hover="true" Elevation="0">
+                <HeaderContent>
+                    <MudTh>Customer</MudTh>
+                    <MudTh>Room</MudTh>
+                    <MudTh>Check In</MudTh>
+                    <MudTh>Check Out</MudTh>
+                    <MudTh>Amount</MudTh>
+                    <MudTh>Status</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><strong>@(context.Customer?.FullName ?? $"#{context.CustomerId}")</strong></MudTd>
+                    <MudTd>@(context.Room?.RoomNumber ?? $"#{context.RoomId}")</MudTd>
+                    <MudTd>@context.CheckInDate.ToString("MMM dd, yyyy")</MudTd>
+                    <MudTd>@context.CheckOutDate.ToString("MMM dd, yyyy")</MudTd>
+                    <MudTd>$@context.TotalAmount.ToString("N2")</MudTd>
+                    <MudTd>
+                        @{
+                            var cls = context.Status?.ToLower() switch
+                            {
+                                "confirmed" => "ha-badge ha-badge-green",
+                                "cancelled" => "ha-badge ha-badge-red",
+                                _           => "ha-badge ha-badge-amber"
+                            };
+                        }
+                        <span class="@cls">@context.Status</span>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCard>
+    }
+}
+
+@code {
+    private DashboardStats _stats = new();
+    private List<BookingDto> _recentBookings = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login"); return; }
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        var rooms     = await Mediator.SendAsync(new GetRoomsRequest());
+        var customers = await Mediator.SendAsync(new GetCustomersRequest());
+        var bookings  = await Mediator.SendAsync(new GetBookingsRequest());
+        var billings  = await Mediator.SendAsync(new GetBillingsRequest());
+
+        _stats.TotalRooms     = rooms.Count;
+        _stats.TotalCustomers = customers.Count;
+        _stats.TotalBookings  = bookings.Count;
+        _stats.TotalRevenue   = billings.Sum(b => b.Amount);
+
+        // Build revenue trend from billing dates
+        var trend = billings
+            .Where(b => b.BillingDate.Year == DateTime.Now.Year)
+            .GroupBy(b => b.BillingDate.Month)
+            .OrderBy(g => g.Key)
+            .Select(g => new RevenuePoint
+            {
+                Label  = new DateTime(DateTime.Now.Year, g.Key, 1).ToString("MMM"),
+                Amount = g.Sum(x => x.Amount)
+            })
+            .ToList();
+
+        // Fallback: use booking amounts
+        if (!trend.Any())
+            trend = bookings
+                .Where(b => b.CheckInDate.Year == DateTime.Now.Year)
+                .GroupBy(b => b.CheckInDate.Month)
+                .OrderBy(g => g.Key)
+                .Select(g => new RevenuePoint
+                {
+                    Label  = new DateTime(DateTime.Now.Year, g.Key, 1).ToString("MMM"),
+                    Amount = g.Sum(x => x.TotalAmount)
+                })
+                .ToList();
+
+        _stats.RevenueTrend = trend;
+        _recentBookings = bookings.OrderByDescending(b => b.CreatedAt).Take(5).ToList();
+
+        _loading = false;
+    }
+}

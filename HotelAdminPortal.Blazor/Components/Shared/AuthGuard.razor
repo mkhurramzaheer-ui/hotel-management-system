@@ -1,0 +1,34 @@
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+@implements IDisposable
+
+@if (Auth.IsAuthenticated)
+{
+    @ChildContent
+}
+else
+{
+    <div style="display:flex;justify-content:center;align-items:center;height:60vh">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Auth.StateChanged += OnAuthChanged;
+        if (!Auth.IsAuthenticated)
+            Nav.NavigateTo("/login", replace: true);
+    }
+
+    private void OnAuthChanged()
+    {
+        if (!Auth.IsAuthenticated)
+            Nav.NavigateTo("/login", replace: true);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Auth.StateChanged -= OnAuthChanged;
+}

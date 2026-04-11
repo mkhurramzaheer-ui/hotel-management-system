@@ -1,0 +1,169 @@
+@page "/customers"
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Customers – Hotel Admin</PageTitle>
+
+<div class="ha-page-header">
+    <h1 class="ha-page-title" style="margin:0">Customers</h1>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.PersonAdd"
+               OnClick="OpenAdd" Class="ha-add-btn">
+        Add Customer
+    </MudButton>
+</div>
+
+<MudCard Class="ha-table-card" Elevation="0">
+    <MudTable Items="_filtered" Loading="_loading" LoadingProgressColor="Color.Primary"
+              Hover="true" Striped="false" Dense="false" RowsPerPage="10">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6"
+                     Style="font-family:'DM Serif Display',serif;color:#1a237e;font-weight:400">
+                Customer Directory
+            </MudText>
+            <MudSpacer />
+            <MudTextField T="string"
+                          Value="_searchStr"
+                          ValueChanged="OnSearch"
+                          Placeholder="Search by name or email..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Immediate="true"
+                          Style="max-width:260px" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy='new Func<CustomerDto,object>(c=>c.Id)'>#</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<CustomerDto,object>(c=>c.FullName)'>Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<CustomerDto,object>(c=>c.Email)'>Email</MudTableSortLabel></MudTh>
+            <MudTh>Phone</MudTh>
+            <MudTh Style="text-align:right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Id</MudText>
+            </MudTd>
+            <MudTd DataLabel="Name">
+                <div class="ha-avatar-cell">
+                    <MudAvatar Color="Color.Primary" Size="Size.Small"
+                               Style="font-size:.82rem;font-weight:700">
+                        @(context.FirstName.Length > 0 ? char.ToUpper(context.FirstName[0]) : '?')
+                    </MudAvatar>
+                    <div>
+                        <div><strong>@context.FullName</strong></div>
+                    </div>
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Email">
+                <MudLink Href="@($"mailto:{context.Email}")" Color="Color.Primary">
+                    @context.Email
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="Phone">@context.PhoneNumber</MudTd>
+            <MudTd DataLabel="Actions" Style="text-align:right">
+                <MudTooltip Text="Edit">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   OnClick="() => OpenEdit(context)" Class="mr-1" />
+                </MudTooltip>
+                <MudTooltip Text="Delete">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   OnClick="() => Delete(context.Id)" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <div style="text-align:center;padding:48px 0">
+                <MudIcon Icon="@Icons.Material.Filled.People"
+                         Style="font-size:3rem;color:#c5cae9" />
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
+                    No customers found
+                </MudText>
+            </div>
+        </NoRecordsContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,25,50}" />
+        </PagerContent>
+    </MudTable>
+</MudCard>
+
+@code {
+    private List<CustomerDto> _customers = new();
+    private List<CustomerDto> _filtered  = new();
+    private bool _loading = true;
+    private string _searchStr = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login"); return; }
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        _loading = true;
+        _customers = await Mediator.SendAsync(new GetCustomersRequest());
+        _filtered  = _customers;
+        _loading   = false;
+    }
+
+    private void OnSearch(string val)
+    {
+        _searchStr = val;
+        if (string.IsNullOrWhiteSpace(val))
+        {
+            _filtered = _customers;
+            return;
+        }
+        _filtered = _customers
+            .Where(c => c.FullName.Contains(val, StringComparison.OrdinalIgnoreCase)
+                     || c.Email.Contains(val, StringComparison.OrdinalIgnoreCase)
+                     || c.PhoneNumber.Contains(val, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private async Task OpenAdd()
+    {
+        var p = new DialogParameters { ["Customer"] = new Customer(), ["IsEdit"] = false };
+        var opts = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true };
+        var d = await DialogService.ShowAsync<CustomerDialog>("Add Customer", p, opts);
+        if (!(await d.Result).Canceled) await Load();
+    }
+
+    private async Task OpenEdit(CustomerDto dto)
+    {
+        var p = new DialogParameters
+        {
+            ["Customer"] = new Customer
+            {
+                Id = dto.Id, FirstName = dto.FirstName, LastName = dto.LastName,
+                Email = dto.Email, PhoneNumber = dto.PhoneNumber
+            },
+            ["IsEdit"] = true
+        };
+        var opts = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true };
+        var d = await DialogService.ShowAsync<CustomerDialog>("Edit Customer", p, opts);
+        if (!(await d.Result).Canceled) await Load();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Confirm Delete", "This customer will be permanently deleted. Continue?",
+            yesText: "Delete", cancelText: "Cancel");
+        if (confirm != true) return;
+
+        var ok = await Mediator.SendAsync(new DeleteCustomerRequest(id));
+        Snackbar.Add(ok ? "Customer deleted." : "Failed to delete.",
+                     ok ? Severity.Success : Severity.Error);
+        if (ok) await Load();
+    }
+}

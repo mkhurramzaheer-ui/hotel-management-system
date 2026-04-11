@@ -1,0 +1,70 @@
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+@using HotelAdmin.Models
+@using HotelAdmin.Services
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Room.RoomNumber" Label="Room Number"
+                              Variant="Variant.Outlined" Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="Room.Type" Label="Room Type"
+                           Variant="Variant.Outlined" Required="true">
+                    <MudSelectItem Value="@("Standard")">Standard</MudSelectItem>
+                    <MudSelectItem Value="@("Deluxe")">Deluxe</MudSelectItem>
+                    <MudSelectItem Value="@("Suite")">Suite</MudSelectItem>
+                    <MudSelectItem Value="@("Penthouse")">Penthouse</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="Room.PricePerNight" Label="Price Per Night ($)"
+                                 Variant="Variant.Outlined" Min="0" Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSwitch T="bool"
+                           @bind-Checked="Room.IsAvailable"
+                           Label="Available"
+                           Color="Color.Success"
+                           Class="mt-4" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="Submit" Variant="Variant.Filled"
+                   Color="Color.Primary" Disabled="_saving" Class="ha-add-btn">
+            @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+            @(IsEdit ? "Update" : "Add Room")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Room Room { get; set; } = new();
+    [Parameter] public bool IsEdit { get; set; }
+
+    private bool _saving;
+
+    private async Task Submit()
+    {
+        _saving = true;
+        bool ok;
+        if (IsEdit)
+            ok = await Mediator.SendAsync(new UpdateRoomRequest(Room.Id, Room));
+        else
+            ok = await Mediator.SendAsync(new CreateRoomRequest(Room));
+
+        Snackbar.Add(ok ? (IsEdit ? "Room updated!" : "Room added!") : "Operation failed.",
+                     ok ? Severity.Success : Severity.Error);
+        _saving = false;
+        if (ok) MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

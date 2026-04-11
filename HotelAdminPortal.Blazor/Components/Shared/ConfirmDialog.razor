@@ -1,0 +1,50 @@
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <div style="display:flex;align-items:flex-start;gap:16px;padding:8px 0">
+            <MudIcon Icon="@Icon"
+                     Style="@($"font-size:2rem;color:{IconColor};flex-shrink:0;margin-top:2px")" />
+            <div>
+                <MudText Typo="Typo.body1" Style="font-weight:500;color:#1a237e">
+                    @Message
+                </MudText>
+                @if (!string.IsNullOrEmpty(SubMessage))
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">
+                        @SubMessage
+                    </MudText>
+                }
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel"
+                   Variant="Variant.Outlined"
+                   Color="Color.Default"
+                   Class="ha-add-btn">
+            @CancelText
+        </MudButton>
+        <MudButton OnClick="Confirm"
+                   Variant="Variant.Filled"
+                   Color="@ButtonColor"
+                   Class="ha-add-btn">
+            @ConfirmText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public string Message    { get; set; } = "Are you sure?";
+    [Parameter] public string SubMessage { get; set; } = string.Empty;
+    [Parameter] public string ConfirmText{ get; set; } = "Confirm";
+    [Parameter] public string CancelText { get; set; } = "Cancel";
+    [Parameter] public Color  ButtonColor{ get; set; } = Color.Error;
+    [Parameter] public string Icon       { get; set; } = Icons.Material.Filled.Warning;
+    [Parameter] public string IconColor  { get; set; } = "#f9a825";
+
+    private void Confirm() => MudDialog.Close(DialogResult.Ok(true));
+    private void Cancel()  => MudDialog.Cancel();
+}

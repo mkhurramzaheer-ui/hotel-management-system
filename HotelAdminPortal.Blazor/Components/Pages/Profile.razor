@@ -1,0 +1,145 @@
+@page "/profile"
+@rendermode InteractiveServer
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IMediator Mediator
+
+<PageTitle>Profile – Hotel Admin</PageTitle>
+
+<h1 class="ha-page-title">Profile & Settings</h1>
+
+<MudGrid Spacing="3">
+
+    <!-- Profile Card -->
+    <MudItem xs="12" md="4">
+        <MudCard Class="ha-table-card" Elevation="0">
+            <MudCardContent Class="pa-6" Style="text-align:center">
+                <MudAvatar Color="Color.Primary"
+                           Style="width:80px;height:80px;font-size:2rem;font-weight:700;
+                                  margin:0 auto 16px;display:flex">
+                    @(Auth.Username.Length > 0 ? char.ToUpper(Auth.Username[0]) : 'A')
+                </MudAvatar>
+                <MudText Typo="Typo.h6" Style="color:#1a237e">@Auth.Username</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Administrator</MudText>
+                <MudDivider Class="my-4" />
+                <MudChip T="string" Color="Color.Success" Size="Size.Small"
+                         Icon="@Icons.Material.Filled.CheckCircle">
+                    Authenticated
+                </MudChip>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- System Info Card -->
+    <MudItem xs="12" md="8">
+        <MudCard Class="ha-table-card" Elevation="0">
+            <div class="ha-table-header"><h6>System Information</h6></div>
+            <MudCardContent Class="pa-4">
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" sm="6">
+                        <div class="ha-info-row">
+                            <span class="ha-info-label">Application</span>
+                            <span class="ha-info-value">Hotel Admin Portal</span>
+                        </div>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <div class="ha-info-row">
+                            <span class="ha-info-label">Framework</span>
+                            <span class="ha-info-value">Blazor Server (.NET 8)</span>
+                        </div>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <div class="ha-info-row">
+                            <span class="ha-info-label">UI Library</span>
+                            <span class="ha-info-value">MudBlazor v7</span>
+                        </div>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <div class="ha-info-row">
+                            <span class="ha-info-label">Architecture</span>
+                            <span class="ha-info-value">Mediator Pattern</span>
+                        </div>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <div class="ha-info-row">
+                            <span class="ha-info-label">Auth</span>
+                            <span class="ha-info-value">JWT Bearer Token</span>
+                        </div>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <div class="ha-info-row">
+                            <span class="ha-info-label">Server Time</span>
+                            <span class="ha-info-value">@DateTime.Now.ToString("MMM dd, yyyy HH:mm")</span>
+                        </div>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+
+        <!-- Stats summary -->
+        <MudCard Class="ha-table-card mt-3" Elevation="0">
+            <div class="ha-table-header"><h6>Quick Stats</h6></div>
+            <MudCardContent Class="pa-4">
+                @if (_loading)
+                {
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+                }
+                else
+                {
+                    <MudGrid Spacing="2">
+                        <MudItem xs="6" sm="3">
+                            <div class="ha-quick-stat">
+                                <div class="ha-quick-stat-num" style="color:#1a237e">@_rooms</div>
+                                <div class="ha-quick-stat-lbl">Rooms</div>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="6" sm="3">
+                            <div class="ha-quick-stat">
+                                <div class="ha-quick-stat-num" style="color:#2e7d32">@_customers</div>
+                                <div class="ha-quick-stat-lbl">Customers</div>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="6" sm="3">
+                            <div class="ha-quick-stat">
+                                <div class="ha-quick-stat-num" style="color:#e65100">@_bookings</div>
+                                <div class="ha-quick-stat-lbl">Bookings</div>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="6" sm="3">
+                            <div class="ha-quick-stat">
+                                <div class="ha-quick-stat-num" style="color:#c62828">@_billings</div>
+                                <div class="ha-quick-stat-lbl">Bills</div>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+</MudGrid>
+
+@code {
+    private bool _loading = true;
+    private int _rooms, _customers, _bookings, _billings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login"); return; }
+        _loading = true;
+        try
+        {
+            var r  = await Mediator.SendAsync(new GetRoomsRequest());
+            var c  = await Mediator.SendAsync(new GetCustomersRequest());
+            var bk = await Mediator.SendAsync(new GetBookingsRequest());
+            var bl = await Mediator.SendAsync(new GetBillingsRequest());
+            _rooms     = r.Count;
+            _customers = c.Count;
+            _bookings  = bk.Count;
+            _billings  = bl.Count;
+        }
+        catch { /* swallow */ }
+        _loading = false;
+    }
+}

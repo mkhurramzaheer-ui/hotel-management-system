@@ -1,0 +1,62 @@
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+@using HotelAdmin.Models
+@using HotelAdmin.Services
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Customer.FirstName" Label="First Name"
+                              Variant="Variant.Outlined" Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="Customer.LastName" Label="Last Name"
+                              Variant="Variant.Outlined" Required="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="Customer.Email" Label="Email"
+                              Variant="Variant.Outlined" InputType="InputType.Email" Required="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="Customer.PhoneNumber" Label="Phone Number"
+                              Variant="Variant.Outlined" InputType="InputType.Telephone" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="Submit" Variant="Variant.Filled"
+                   Color="Color.Primary" Disabled="_saving" Class="ha-add-btn">
+            @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+            @(IsEdit ? "Update" : "Add Customer")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Customer Customer { get; set; } = new();
+    [Parameter] public bool IsEdit { get; set; }
+
+    private bool _saving;
+
+    private async Task Submit()
+    {
+        _saving = true;
+        bool ok;
+        if (IsEdit)
+            ok = await Mediator.SendAsync(new UpdateCustomerRequest(Customer.Id, Customer));
+        else
+            ok = await Mediator.SendAsync(new CreateCustomerRequest(Customer));
+
+        Snackbar.Add(ok ? (IsEdit ? "Customer updated!" : "Customer added!") : "Operation failed.",
+                     ok ? Severity.Success : Severity.Error);
+        _saving = false;
+        if (ok) MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

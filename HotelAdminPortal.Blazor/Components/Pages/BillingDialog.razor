@@ -1,0 +1,64 @@
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+@using HotelAdmin.Models
+@using HotelAdmin.Services
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudSelect @bind-Value="Billing.BookingId" Label="Booking"
+                           Variant="Variant.Outlined" Required="true">
+                    @foreach (var b in Bookings)
+                    {
+                        <MudSelectItem Value="@b.Id">
+                            #@b.Id – @(b.Customer?.FullName ?? $"Customer #{b.CustomerId}") | Room @(b.Room?.RoomNumber ?? b.RoomId.ToString())
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="Billing.Amount" Label="Amount ($)"
+                                 Variant="Variant.Outlined" Min="0" Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="Billing.PaymentStatus" Label="Payment Status"
+                           Variant="Variant.Outlined" Required="true">
+                    <MudSelectItem Value="@("Paid")">Paid</MudSelectItem>
+                    <MudSelectItem Value="@("Unpaid")">Unpaid</MudSelectItem>
+                    <MudSelectItem Value="@("Partial")">Partial</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="Submit" Variant="Variant.Filled"
+                   Color="Color.Primary" Disabled="_saving" Class="ha-add-btn">
+            @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+            Save Billing
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public CreateBillingDto Billing { get; set; } = new();
+    [Parameter] public List<BookingDto> Bookings { get; set; } = new();
+
+    private bool _saving;
+
+    private async Task Submit()
+    {
+        _saving = true;
+        var ok = await Mediator.SendAsync(new CreateBillingRequest(Billing));
+        Snackbar.Add(ok ? "Billing saved!" : "Failed to save billing.",
+                     ok ? Severity.Success : Severity.Error);
+        _saving = false;
+        if (ok) MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

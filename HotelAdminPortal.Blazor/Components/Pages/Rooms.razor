@@ -1,0 +1,195 @@
+@page "/rooms"
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Rooms – Hotel Admin</PageTitle>
+
+<div class="ha-page-header">
+    <h1 class="ha-page-title" style="margin:0">Rooms</h1>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenAdd" Class="ha-add-btn" Size="Size.Medium">
+        Add Room
+    </MudButton>
+</div>
+
+<MudCard Class="ha-table-card" Elevation="0">
+    <MudTable Items="_rooms" Loading="_loading" LoadingProgressColor="Color.Primary"
+              Hover="true" Striped="false" Dense="false"
+              RowsPerPage="10" Class="ha-data-table">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6" Style="font-family:'DM Serif Display',serif;color:#1a237e;font-weight:400">
+                Room Inventory
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchStr"
+                          Placeholder="Search rooms…"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Style="max-width:220px" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy='new Func<Room,object>(r=>r.Id)'>#</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<Room,object>(r=>r.RoomNumber)'>Room No.</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<Room,object>(r=>r.Type)'>Type</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<Room,object>(r=>r.PricePerNight)'>Price / Night</MudTableSortLabel></MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh Style="text-align:right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Id</MudText>
+            </MudTd>
+            <MudTd DataLabel="Room No.">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <MudAvatar Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined"
+                               Style="font-size:.8rem;font-weight:700">
+                        @context.RoomNumber.Length > 0 ? context.RoomNumber[..Math.Min(2,context.RoomNumber.Length)] : "?"
+                    </MudAvatar>
+                    <strong>@context.RoomNumber</strong>
+                </div>
+            </MudTd>
+            <MudTd DataLabel="Type">
+                @{
+                    var typeCls = context.Type?.ToLower() switch
+                    {
+                        "suite"     => "ha-badge ha-badge-amber",
+                        "deluxe"    => "ha-badge ha-badge-blue",
+                        "penthouse" => "ha-badge ha-badge-red",
+                        _           => "ha-badge ha-badge-green"
+                    };
+                }
+                <span class="@typeCls">@context.Type</span>
+            </MudTd>
+            <MudTd DataLabel="Price">
+                <strong style="color:#1a237e">$@context.PricePerNight.ToString("N2")</strong>
+            </MudTd>
+            <MudTd DataLabel="Status">
+                @if (context.IsAvailable)
+                {
+                    <span class="ha-badge ha-badge-green">
+                        <span style="margin-right:4px">●</span> Available
+                    </span>
+                }
+                else
+                {
+                    <span class="ha-badge ha-badge-red">
+                        <span style="margin-right:4px">●</span> Occupied
+                    </span>
+                }
+            </MudTd>
+            <MudTd DataLabel="Actions" Style="text-align:right">
+                <MudTooltip Text="Edit Room">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   OnClick="() => OpenEdit(context)"
+                                   Class="ha-action-btn mr-1" />
+                </MudTooltip>
+                <MudTooltip Text="Delete Room">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   OnClick="() => DeleteRoom(context.Id)"
+                                   Class="ha-action-btn" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <div style="text-align:center;padding:48px 0">
+                <MudIcon Icon="@Icons.Material.Filled.MeetingRoom"
+                         Style="font-size:3rem;color:#c5cae9" />
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
+                    No rooms found
+                </MudText>
+            </div>
+        </NoRecordsContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,25,50}" />
+        </PagerContent>
+    </MudTable>
+</MudCard>
+
+@code {
+    private List<Room> _rooms = new();
+    private bool _loading = true;
+    private string _searchStr = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login"); return; }
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        _loading = true;
+        _rooms = await Mediator.SendAsync(new GetRoomsRequest());
+        _loading = false;
+    }
+
+    private bool FilterFunc(Room r)
+    {
+        if (string.IsNullOrWhiteSpace(_searchStr)) return true;
+        return r.RoomNumber.Contains(_searchStr, StringComparison.OrdinalIgnoreCase)
+            || r.Type.Contains(_searchStr, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task OpenAdd()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Room"]   = new Room { IsAvailable = true },
+            ["IsEdit"] = false
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            CloseButton = true, CloseOnEscapeKey = true
+        };
+        var dialog = await DialogService.ShowAsync<RoomDialog>("Add Room", parameters, options);
+        if (!(await dialog.Result).Canceled) await Load();
+    }
+
+    private async Task OpenEdit(Room room)
+    {
+        var parameters = new DialogParameters
+        {
+            ["Room"] = new Room
+            {
+                Id = room.Id, RoomNumber = room.RoomNumber,
+                Type = room.Type, PricePerNight = room.PricePerNight,
+                IsAvailable = room.IsAvailable
+            },
+            ["IsEdit"] = true
+        };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            CloseButton = true, CloseOnEscapeKey = true
+        };
+        var dialog = await DialogService.ShowAsync<RoomDialog>("Edit Room", parameters, options);
+        if (!(await dialog.Result).Canceled) await Load();
+    }
+
+    private async Task DeleteRoom(int id)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Confirm Delete",
+            "This room will be permanently deleted. Continue?",
+            yesText: "Delete", cancelText: "Cancel");
+        if (confirm != true) return;
+
+        var ok = await Mediator.SendAsync(new DeleteRoomRequest(id));
+        Snackbar.Add(ok ? "Room deleted successfully." : "Failed to delete room.",
+                     ok ? Severity.Success : Severity.Error);
+        if (ok) await Load();
+    }
+}

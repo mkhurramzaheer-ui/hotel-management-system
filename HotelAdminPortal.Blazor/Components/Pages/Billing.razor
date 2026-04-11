@@ -1,0 +1,185 @@
+@page "/billing"
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Billing – Hotel Admin</PageTitle>
+
+<div class="ha-page-header">
+    <h1 class="ha-page-title" style="margin:0">Billing</h1>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenAdd" Class="ha-add-btn">
+        Add Billing
+    </MudButton>
+</div>
+
+<!-- Revenue summary bar -->
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudCard Class="ha-table-card pa-4" Elevation="0">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Total Collected</MudText>
+            <MudText Typo="Typo.h5" Style="color:#2e7d32;font-weight:700">
+                $@_billings.Where(b => b.PaymentStatus?.ToLower() == "paid").Sum(b => b.Amount).ToString("N2")
+            </MudText>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudCard Class="ha-table-card pa-4" Elevation="0">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Outstanding</MudText>
+            <MudText Typo="Typo.h5" Style="color:#c62828;font-weight:700">
+                $@_billings.Where(b => b.PaymentStatus?.ToLower() != "paid").Sum(b => b.Amount).ToString("N2")
+            </MudText>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudCard Class="ha-table-card pa-4" Elevation="0">
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Total Records</MudText>
+            <MudText Typo="Typo.h5" Style="color:#1a237e;font-weight:700">
+                @_billings.Count
+            </MudText>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+<MudCard Class="ha-table-card" Elevation="0">
+    <MudTable Items="_billings" Loading="_loading" LoadingProgressColor="Color.Primary"
+              Hover="true" Dense="false" RowsPerPage="10">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6"
+                     Style="font-family:'DM Serif Display',serif;color:#1a237e;font-weight:400">
+                Billing Records
+            </MudText>
+            <MudSpacer />
+            <MudSelect @bind-Value="_filterStatus" Label="Filter by status"
+                       Variant="Variant.Outlined" Margin="Margin.Dense"
+                       Style="max-width:180px" Clearable="true"
+                       T="string">
+                <MudSelectItem T="string" Value="@("Paid")">Paid</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Unpaid")">Unpaid</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Partial")">Partial</MudSelectItem>
+            </MudSelect>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy='new Func<BillingDto,object>(b=>b.Id)'>#</MudTableSortLabel></MudTh>
+            <MudTh>Customer</MudTh>
+            <MudTh>Room</MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<BillingDto,object>(b=>b.Amount)'>Amount</MudTableSortLabel></MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh><MudTableSortLabel SortBy='new Func<BillingDto,object>(b=>b.BillingDate)'>Date</MudTableSortLabel></MudTh>
+            <MudTh Style="text-align:right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Id</MudText>
+            </MudTd>
+            <MudTd>
+                <div class="ha-avatar-cell">
+                    @{
+                        var cname = context.Booking?.Customer?.FullName ?? $"Booking #{context.BookingId}";
+                    }
+                    <MudAvatar Color="Color.Info" Size="Size.Small"
+                               Style="font-size:.8rem;font-weight:700">
+                        @(cname.Length > 0 ? char.ToUpper(cname[0]) : '?')
+                    </MudAvatar>
+                    <strong>@cname</strong>
+                </div>
+            </MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">
+                    @(context.Booking?.Room?.RoomNumber ?? "—")
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <strong style="font-size:1rem;color:#1a237e">
+                    $@context.Amount.ToString("N2")
+                </strong>
+            </MudTd>
+            <MudTd>
+                @{
+                    var cls = context.PaymentStatus?.ToLower() switch
+                    {
+                        "paid"    => "ha-badge ha-badge-green",
+                        "unpaid"  => "ha-badge ha-badge-red",
+                        "partial" => "ha-badge ha-badge-amber",
+                        _         => "ha-badge ha-badge-blue"
+                    };
+                }
+                <span class="@cls">@context.PaymentStatus</span>
+            </MudTd>
+            <MudTd>@context.BillingDate.ToString("MMM dd, yyyy")</MudTd>
+            <MudTd Style="text-align:right">
+                <MudTooltip Text="Delete Billing">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   OnClick="() => Delete(context.Id)" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <div style="text-align:center;padding:48px 0">
+                <MudIcon Icon="@Icons.Material.Filled.Receipt"
+                         Style="font-size:3rem;color:#c5cae9" />
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
+                    No billing records found
+                </MudText>
+            </div>
+        </NoRecordsContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,25,50}" />
+        </PagerContent>
+    </MudTable>
+</MudCard>
+
+@code {
+    private List<BillingDto> _billings = new();
+    private bool _loading = true;
+    private string? _filterStatus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login"); return; }
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        _loading  = true;
+        _billings = await Mediator.SendAsync(new GetBillingsRequest());
+        _loading  = false;
+    }
+
+    private async Task OpenAdd()
+    {
+        var bookings = await Mediator.SendAsync(new GetBookingsRequest());
+        var p = new DialogParameters
+        {
+            ["Billing"]  = new CreateBillingDto { PaymentStatus = "Paid" },
+            ["Bookings"] = bookings
+        };
+        var opts = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            CloseButton = true, CloseOnEscapeKey = true
+        };
+        var d = await DialogService.ShowAsync<BillingDialog>("Add Billing", p, opts);
+        if (!(await d.Result).Canceled) await Load();
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirm = await DialogService.ShowMessageBox(
+            "Confirm Delete", "Delete this billing record permanently?",
+            yesText: "Delete", cancelText: "Cancel");
+        if (confirm != true) return;
+
+        var ok = await Mediator.SendAsync(new DeleteBillingRequest(id));
+        Snackbar.Add(ok ? "Billing record deleted." : "Failed to delete.",
+                     ok ? Severity.Success : Severity.Error);
+        if (ok) await Load();
+    }
+}

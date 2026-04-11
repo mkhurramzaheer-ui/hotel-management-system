@@ -1,0 +1,174 @@
+@page "/login"
+@inject IMediator Mediator
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+
+<PageTitle>Sign In – Hotel Admin</PageTitle>
+
+<div class="ha-login-root">
+    <div class="ha-login-card-wrap">
+        <!-- Left decorative panel -->
+        <div class="ha-login-side">
+            <div class="ha-login-side-content">
+                <div style="font-size:3.5rem;margin-bottom:20px">🏨</div>
+                <h2 class="ha-login-side-title">Hotel Admin Portal</h2>
+                <p class="ha-login-side-sub">
+                    Manage rooms, customers, bookings and billing from one place.
+                </p>
+                <div class="ha-login-features">
+                    <div class="ha-login-feature">
+                        <span>🏠</span> Room Management
+                    </div>
+                    <div class="ha-login-feature">
+                        <span>👥</span> Customer Directory
+                    </div>
+                    <div class="ha-login-feature">
+                        <span>📋</span> Booking System
+                    </div>
+                    <div class="ha-login-feature">
+                        <span>💳</span> Billing & Payments
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="ha-login-form-panel">
+            <div class="ha-login-form-inner">
+                <h3 class="ha-login-form-title">Welcome back</h3>
+                <p class="ha-login-form-sub">Sign in to your admin account</p>
+
+                <div class="ha-login-field-group">
+                    <MudTextField @bind-Value="_model.Username"
+                                  Label="Username"
+                                  Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Person"
+                                  AdornmentColor="Color.Primary"
+                                  Class="mb-4"
+                                  FullWidth="true"
+                                  Immediate="true"
+                                  OnKeyDown="HandleKeyDown"
+                                  Disabled="_loading" />
+
+                    <MudTextField @bind-Value="_model.Password"
+                                  Label="Password"
+                                  Variant="Variant.Outlined"
+                                  InputType="@(_showPass ? InputType.Text : InputType.Password)"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@(_showPass
+                                      ? Icons.Material.Filled.VisibilityOff
+                                      : Icons.Material.Filled.Visibility)"
+                                  AdornmentColor="Color.Primary"
+                                  OnAdornmentClick="() => _showPass = !_showPass"
+                                  Class="mb-5"
+                                  FullWidth="true"
+                                  Immediate="true"
+                                  OnKeyDown="HandleKeyDown"
+                                  Disabled="_loading" />
+                </div>
+
+                <MudButton OnClick="HandleLogin"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           Size="Size.Large"
+                           Disabled="_loading"
+                           Style="border-radius:10px;height:50px;font-size:1rem;font-weight:600;letter-spacing:.3px">
+                    @if (_loading)
+                    {
+                        <MudProgressCircular Size="Size.Small"
+                                             Indeterminate="true"
+                                             Class="mr-2"
+                                             Style="color:white" />
+                        <span>Signing in…</span>
+                    }
+                    else
+                    {
+                        <span>Sign In</span>
+                    }
+                </MudButton>
+
+                @if (!string.IsNullOrEmpty(_error))
+                {
+                    <MudAlert Severity="Severity.Error"
+                              Class="mt-4"
+                              Dense="true"
+                              ShowCloseIcon="true"
+                              CloseIconClicked="() => _error = string.Empty"
+                              Style="border-radius:10px">
+                        @_error
+                    </MudAlert>
+                }
+
+                <div class="ha-login-hint">
+                    <MudIcon Icon="@Icons.Material.Filled.Info"
+                             Size="Size.Small"
+                             Style="font-size:.9rem;margin-right:6px;opacity:.6" />
+                    Use your API credentials to sign in
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginRequest _model = new();
+    private bool _loading;
+    private bool _showPass;
+    private string _error = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if (Auth.IsAuthenticated)
+            Nav.NavigateTo("/");
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !_loading)
+            await HandleLogin();
+    }
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(_model.Username) ||
+            string.IsNullOrWhiteSpace(_model.Password))
+        {
+            _error = "Please enter both username and password.";
+            return;
+        }
+
+        _loading = true;
+        _error   = string.Empty;
+
+        try
+        {
+            var result = await Mediator.SendAsync(new LoginRequestCmd(_model));
+
+            if (result.Success && !string.IsNullOrEmpty(result.Token))
+            {
+                Auth.SetToken(result.Token, _model.Username);
+                Snackbar.Add($"Welcome back, {_model.Username}! 👋",
+                             Severity.Success,
+                             cfg => { cfg.ShowCloseIcon = true; cfg.VisibleStateDuration = 2500; });
+                Nav.NavigateTo("/");
+            }
+            else
+            {
+                _error = result.Message.Length > 0
+                    ? result.Message
+                    : "Invalid username or password. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Connection error: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

@@ -1,51 +1,563 @@
+/* ── Google Fonts import (fallback) ───────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+
+/* ── CSS Variables ────────────────────────────────────────────────────── */
+:root {
+    --navy:        #1a237e;
+    --navy-dark:   #0d1b6e;
+    --navy-mid:    #1a1f3c;
+    --accent:      #f9a825;
+    --accent-soft: #fff8e1;
+    --bg:          #f4f6fb;
+    --surface:     #ffffff;
+    --success:     #2e7d32;
+    --danger:      #c62828;
+    --text-main:   #1a237e;
+    --text-muted:  #546e7a;
+    --radius:      12px;
+    --shadow:      0 2px 16px rgba(26,35,126,.09);
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 0;
 }
 
-a, .btn-link {
-    color: #006bb7;
+/* ── Drawer / Sidebar ─────────────────────────────────────────────────── */
+.ha-drawer {
+    background: var(--navy-mid) !important;
+    border-right: none !important;
 }
 
-.btn-primary {
+.ha-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.ha-logo-icon { font-size: 1.6rem; }
+.ha-logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    letter-spacing: .3px;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.ha-nav .mud-nav-link {
+    color: #b0bec5 !important;
+    border-radius: 8px !important;
+    margin: 2px 10px !important;
+    font-size: .92rem !important;
+    font-weight: 500 !important;
+    transition: background .15s, color .15s;
+}
+.ha-nav .mud-nav-link:hover,
+.ha-nav .mud-nav-link.active {
+    background: rgba(255,255,255,.1) !important;
+    color: #fff !important;
+}
+.ha-nav .mud-nav-link .mud-icon-root {
+    color: #7986cb !important;
+}
+.ha-nav .mud-nav-link.active .mud-icon-root {
+    color: var(--accent) !important;
 }
 
-.content {
-    padding-top: 1.1rem;
+.ha-nav-spacer { flex: 1; }
+.ha-logout-wrap {
+    padding: 12px 10px 20px;
+    border-top: 1px solid rgba(255,255,255,.08);
+}
+.ha-logout-btn { text-transform: none !important; }
+
+/* ── Top App Bar ──────────────────────────────────────────────────────── */
+.ha-appbar {
+    background: var(--bg) !important;
+    border-bottom: 1px solid #e3e8f0 !important;
+    color: var(--text-main) !important;
+}
+.ha-topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .9rem;
+    color: var(--text-muted);
+    padding-right: 12px;
+}
+.ha-topbar-user strong { color: var(--navy); }
+
+/* ── Main Content ─────────────────────────────────────────────────────── */
+.ha-main {
+    padding: 28px 32px !important;
+    background: var(--bg);
+    min-height: 100vh;
 }
 
-h1:focus {
-    outline: none;
+/* ── Page Title ───────────────────────────────────────────────────────── */
+.ha-page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    color: var(--navy);
+    margin: 0 0 24px;
+    font-weight: 400;
 }
 
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+/* ── Stat Cards ───────────────────────────────────────────────────────── */
+.ha-stat-card {
+    border-radius: var(--radius) !important;
+    padding: 22px 24px !important;
+    color: #fff !important;
+    box-shadow: var(--shadow) !important;
+    border: none !important;
+    transition: transform .15s;
+}
+.ha-stat-card:hover { transform: translateY(-2px); }
+.ha-stat-label { font-size: .85rem; opacity: .85; margin-bottom: 6px; }
+.ha-stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+.ha-stat-icon  { font-size: 2.2rem; opacity: .25; float: right; margin-top: -4px; }
+
+.ha-card-blue   { background: linear-gradient(135deg, #1a237e, #3949ab) !important; }
+.ha-card-green  { background: linear-gradient(135deg, #1b5e20, #388e3c) !important; }
+.ha-card-amber  { background: linear-gradient(135deg, #e65100, #f9a825) !important; }
+.ha-card-red    { background: linear-gradient(135deg, #b71c1c, #e53935) !important; }
+
+/* ── Data Table Card ──────────────────────────────────────────────────── */
+.ha-table-card {
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow) !important;
+    border: none !important;
+    overflow: hidden;
+}
+.ha-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #e8edf5;
+}
+.ha-table-header h6 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--navy);
+    margin: 0;
+    font-weight: 400;
+}
+.mud-table-head .mud-table-cell {
+    background: #f0f3fa !important;
+    color: var(--navy) !important;
+    font-weight: 700 !important;
+    font-size: .82rem !important;
+    text-transform: uppercase;
+    letter-spacing: .5px;
 }
 
-.invalid {
-    outline: 1px solid #e50000;
+/* ── Badge / Chips ────────────────────────────────────────────────────── */
+.ha-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .78rem;
+    font-weight: 600;
+}
+.ha-badge-green  { background: #e8f5e9; color: #1b5e20; }
+.ha-badge-red    { background: #ffebee; color: #b71c1c; }
+.ha-badge-amber  { background: #fff8e1; color: #e65100; }
+.ha-badge-blue   { background: #e8eaf6; color: #1a237e; }
+
+/* ── Login Page ───────────────────────────────────────────────────────── */
+.ha-login-root {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--navy-dark) 0%, #283593 50%, #1565c0 100%);
+}
+.ha-login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px !important;
+    box-shadow: 0 24px 64px rgba(0,0,0,.35) !important;
+    overflow: hidden;
+}
+.ha-login-card-top {
+    background: var(--navy-mid);
+    padding: 32px 32px 24px;
+    text-align: center;
+}
+.ha-login-logo { font-size: 3rem; }
+.ha-login-title {
+    font-family: 'DM Serif Display', serif;
+    color: #fff;
+    font-size: 1.6rem;
+    margin: 8px 0 4px;
+    font-weight: 400;
+}
+.ha-login-subtitle { color: #9fa8da; font-size: .88rem; }
+.ha-login-form { padding: 28px 32px 32px; }
+
+/* ── Dialog ───────────────────────────────────────────────────────────── */
+.mud-dialog { border-radius: 16px !important; }
+.mud-dialog-title {
+    font-family: 'DM Serif Display', serif !important;
+    color: var(--navy) !important;
+    font-weight: 400 !important;
+    font-size: 1.25rem !important;
 }
 
-.validation-message {
-    color: #e50000;
+/* ── Revenue Chart ────────────────────────────────────────────────────── */
+.ha-chart-wrap {
+    padding: 20px;
+    min-height: 200px;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+.ha-bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.ha-bar {
+    width: 100%;
+    background: linear-gradient(180deg, #3949ab, #1a237e);
+    border-radius: 6px 6px 0 0;
+    min-height: 4px;
+    transition: height .4s ease;
+}
+.ha-bar-label { font-size: .72rem; color: var(--text-muted); }
+
+/* ── Misc ─────────────────────────────────────────────────────────────── */
+.ha-add-btn { text-transform: none !important; font-weight: 600 !important; border-radius: 8px !important; }
+.ha-action-btn { min-width: 0 !important; padding: 4px 8px !important; }
+
+/* ── Drawer flex fix ──────────────────────────────────────────────────── */
+.ha-drawer .mud-drawer-content {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    overflow: hidden !important;
 }
 
+/* ── Error page ───────────────────────────────────────────────────────── */
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
-    padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
+/* ── Table row hover ──────────────────────────────────────────────────── */
+.mud-table-row:hover td { background: #f0f4ff !important; }
+
+/* ── Form fields ──────────────────────────────────────────────────────── */
+.mud-input-outlined .mud-input-outlined-border {
+    border-color: #c5cae9 !important;
+}
+.mud-input-outlined:hover .mud-input-outlined-border {
+    border-color: #1a237e !important;
+}
+
+/* ── MudSelect menu ───────────────────────────────────────────────────── */
+.mud-popover-paper {
+    border-radius: 10px !important;
+    box-shadow: 0 8px 30px rgba(26,35,126,.12) !important;
+}
+
+/* ── Dialog polish ────────────────────────────────────────────────────── */
+.mud-dialog-container .mud-dialog {
+    border-radius: 16px !important;
+}
+.mud-dialog .mud-dialog-title {
+    background: #f0f3fa;
+    padding: 16px 24px !important;
+    font-family: 'DM Serif Display', serif !important;
+    font-size: 1.2rem !important;
+    font-weight: 400 !important;
+    color: #1a237e !important;
+    border-radius: 16px 16px 0 0;
+}
+.mud-dialog .mud-dialog-content {
+    padding: 24px !important;
+}
+.mud-dialog .mud-dialog-actions {
+    padding: 12px 24px 20px !important;
+    gap: 8px;
+}
+
+/* ── Snackbar ─────────────────────────────────────────────────────────── */
+.mud-snackbar {
+    border-radius: 10px !important;
+}
+
+/* ── Breadcrumb top bar ───────────────────────────────────────────────── */
+.ha-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+/* ── Table pagination ─────────────────────────────────────────────────── */
+.mud-table-pagination {
+    border-top: 1px solid #e8edf5;
+}
+
+/* ── Avatar in table ──────────────────────────────────────────────────── */
+.ha-avatar-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LOGIN PAGE – Two-panel layout
+   ═══════════════════════════════════════════════════════════════════════ */
+.ha-login-root {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d1b6e 0%, #1a237e 40%, #1565c0 100%);
+    padding: 20px;
+}
+
+.ha-login-card-wrap {
+    display: flex;
+    width: 100%;
+    max-width: 880px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,.45);
+    min-height: 520px;
+}
+
+/* Left decorative panel */
+.ha-login-side {
+    flex: 1;
+    background: linear-gradient(160deg, #1a1f3c 0%, #283593 100%);
+    padding: 48px 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+.ha-login-side::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    top: -80px; right: -80px;
+}
+.ha-login-side::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.03);
+    bottom: -60px; left: -40px;
+}
+.ha-login-side-content { position: relative; z-index: 1; }
+.ha-login-side-title {
+    font-family: 'DM Serif Display', serif;
+    color: #fff;
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin: 0 0 12px;
+    line-height: 1.2;
+}
+.ha-login-side-sub {
+    color: #9fa8da;
+    font-size: .92rem;
+    line-height: 1.6;
+    margin: 0 0 28px;
+}
+.ha-login-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.ha-login-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #c5cae9;
+    font-size: .88rem;
+    background: rgba(255,255,255,.05);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.07);
+}
+.ha-login-feature span { font-size: 1.1rem; }
+
+/* Right form panel */
+.ha-login-form-panel {
+    flex: 1;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 40px;
+}
+.ha-login-form-inner { width: 100%; max-width: 340px; }
+.ha-login-form-title {
+    font-family: 'DM Serif Display', serif;
+    color: #1a237e;
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin: 0 0 6px;
+}
+.ha-login-form-sub {
+    color: #546e7a;
+    font-size: .88rem;
+    margin: 0 0 28px;
+}
+.ha-login-field-group { margin-bottom: 8px; }
+.ha-login-hint {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    color: #90a4ae;
+    font-size: .78rem;
+    text-align: center;
+    justify-content: center;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 640px) {
+    .ha-login-side { display: none; }
+    .ha-login-card-wrap { max-width: 400px; border-radius: 16px; }
+    .ha-login-form-panel { padding: 36px 28px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PROFILE PAGE
+   ═══════════════════════════════════════════════════════════════════════ */
+.ha-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f3fa;
+}
+.ha-info-label {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #90a4ae;
+    font-weight: 600;
+}
+.ha-info-value {
+    font-size: .92rem;
+    color: #1a237e;
+    font-weight: 500;
+}
+
+.ha-quick-stat {
+    text-align: center;
+    padding: 16px 8px;
+    background: #f8f9fe;
+    border-radius: 10px;
+    border: 1px solid #e8edf5;
+}
+.ha-quick-stat-num {
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.ha-quick-stat-lbl {
+    font-size: .75rem;
+    color: #90a4ae;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE MAIN CONTENT
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 960px) {
+    .ha-main {
+        padding: 20px 16px !important;
     }
-
-.darker-border-checkbox.form-check-input {
-    border-color: #929292;
+    .ha-page-title {
+        font-size: 1.4rem;
+    }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MUD TABLE TOOLBAR FIX
+   ═══════════════════════════════════════════════════════════════════════ */
+.mud-table-toolbar {
+    padding: 12px 20px !important;
+    border-bottom: 1px solid #e8edf5;
+    min-height: 64px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CHIP OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════ */
+.mud-chip {
+    border-radius: 20px !important;
+    font-size: .78rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LOADING OVERLAY
+   ═══════════════════════════════════════════════════════════════════════ */
+.ha-loading-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 300px;
+    color: #90a4ae;
+    font-size: .88rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   APPBAR USER SECTION HOVER
+   ═══════════════════════════════════════════════════════════════════════ */
+.ha-topbar-user {
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 24px;
+    transition: background .15s;
+}
+.ha-topbar-user:hover {
+    background: rgba(26,35,126,.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   NAV LINK BADGE (for future use)
+   ═══════════════════════════════════════════════════════════════════════ */
+.ha-nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    padding: 0 5px;
+    margin-left: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FORM VALIDATION FEEDBACK
+   ═══════════════════════════════════════════════════════════════════════ */
+.mud-input-helper-text {
+    font-size: .76rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   GENERAL UTILITY
+   ═══════════════════════════════════════════════════════════════════════ */
+.mr-1 { margin-right: 4px !important; }
+.mr-2 { margin-right: 8px !important; }
+.mr-3 { margin-right: 12px !important; }

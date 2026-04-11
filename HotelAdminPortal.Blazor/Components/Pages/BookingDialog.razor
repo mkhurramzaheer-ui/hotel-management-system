@@ -1,0 +1,87 @@
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+@using HotelAdmin.Models
+@using HotelAdmin.Services
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudSelect @bind-Value="Booking.CustomerId" Label="Customer"
+                           Variant="Variant.Outlined" Required="true">
+                    @foreach (var c in Customers)
+                    {
+                        <MudSelectItem Value="@c.Id">@c.FullName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <MudSelect @bind-Value="Booking.RoomId" Label="Room"
+                           Variant="Variant.Outlined" Required="true">
+                    @foreach (var r in Rooms)
+                    {
+                        <MudSelectItem Value="@r.Id">Room @r.RoomNumber (@r.Type) – $@r.PricePerNight/night</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="_checkIn" Label="Check In"
+                               Variant="Variant.Outlined" Required="true"
+                               DateFormat="MM/dd/yyyy" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="_checkOut" Label="Check Out"
+                               Variant="Variant.Outlined" Required="true"
+                               DateFormat="MM/dd/yyyy" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="Booking.TotalAmount" Label="Total Amount ($)"
+                                 Variant="Variant.Outlined" Min="0" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="Booking.Status" Label="Status"
+                           Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("Confirmed")">Confirmed</MudSelectItem>
+                    <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
+                    <MudSelectItem Value="@("Cancelled")">Cancelled</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="Submit" Variant="Variant.Filled"
+                   Color="Color.Primary" Disabled="_saving" Class="ha-add-btn">
+            @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" /> }
+            Create Booking
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public CreateBookingRequest Booking { get; set; } = new();
+    [Parameter] public List<CustomerDto> Customers { get; set; } = new();
+    [Parameter] public List<Room> Rooms { get; set; } = new();
+
+    private DateTime? _checkIn  = DateTime.Today;
+    private DateTime? _checkOut = DateTime.Today.AddDays(1);
+    private bool _saving;
+
+    private async Task Submit()
+    {
+        Booking.CheckInDate  = _checkIn  ?? DateTime.Today;
+        Booking.CheckOutDate = _checkOut ?? DateTime.Today.AddDays(1);
+
+        _saving = true;
+        var ok = await Mediator.SendAsync(new CreateBookingRequestCmd(Booking));
+        Snackbar.Add(ok ? "Booking created!" : "Failed to create booking.",
+                     ok ? Severity.Success : Severity.Error);
+        _saving = false;
+        if (ok) MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

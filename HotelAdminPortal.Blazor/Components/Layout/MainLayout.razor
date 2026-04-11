@@ -1,23 +1,152 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@rendermode InteractiveServer
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+@implements IDisposable
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudThemeProvider Theme="_theme" />
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Small" />
+<MudSnackbarProvider />
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+@if (!Auth.IsAuthenticated)
+{
+    @Body
+}
+else
+{
+    <MudLayout>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+        <!-- ── Sidebar ──────────────────────────────────────── -->
+        <MudDrawer Open="true"
+                   Variant="DrawerVariant.Persistent"
+                   ClipMode="DrawerClipMode.Always"
+                   Elevation="0"
+                   Class="ha-drawer">
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+            <div class="ha-logo-wrap">
+                <span class="ha-logo-icon">🏨</span>
+                <span class="ha-logo-text">Hotel Admin</span>
+            </div>
+
+            <MudNavMenu Class="ha-nav mt-2">
+                <MudNavLink Href="/" Match="NavLinkMatch.All"
+                            Icon="@Icons.Material.Filled.Dashboard">
+                    Dashboard
+                </MudNavLink>
+                <MudNavLink Href="/rooms"
+                            Icon="@Icons.Material.Filled.MeetingRoom">
+                    Rooms
+                </MudNavLink>
+                <MudNavLink Href="/customers"
+                            Icon="@Icons.Material.Filled.People">
+                    Customers
+                </MudNavLink>
+                <MudNavLink Href="/bookings"
+                            Icon="@Icons.Material.Filled.BookOnline">
+                    Bookings
+                </MudNavLink>
+                <MudNavLink Href="/billing"
+                            Icon="@Icons.Material.Filled.Receipt">
+                    Billing
+                </MudNavLink>
+                <MudDivider Class="my-2" Style="border-color:rgba(255,255,255,.07)" />
+                <MudNavLink Href="/profile"
+                            Icon="@Icons.Material.Filled.AccountCircle">
+                    Profile
+                </MudNavLink>
+            </MudNavMenu>
+
+            <MudSpacer />
+
+            <div class="ha-logout-wrap">
+                <MudDivider Class="mb-2" Style="border-color:rgba(255,255,255,.1)" />
+                <MudButton OnClick="Logout"
+                           StartIcon="@Icons.Material.Filled.Logout"
+                           Variant="Variant.Text"
+                           Color="Color.Error"
+                           FullWidth="true"
+                           Class="ha-logout-btn">
+                    Logout
+                </MudButton>
+            </div>
+        </MudDrawer>
+
+        <!-- ── Top App Bar ───────────────────────────────── -->
+        <MudAppBar Elevation="0" Class="ha-appbar">
+            <MudSpacer />
+            <div class="ha-topbar-user" @onclick='() => Nav.NavigateTo("/profile")'>
+                <MudAvatar Color="Color.Primary" Size="Size.Small"
+                           Style="font-weight:700;font-size:.85rem">
+                    @(Auth.Username.Length > 0 ? char.ToUpper(Auth.Username[0]) : 'A')
+                </MudAvatar>
+                <span>Welcome, <strong>@Auth.Username</strong></span>
+                <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown"
+                         Size="Size.Small"
+                         Style="font-size:1rem;opacity:.5;margin-left:2px" />
+            </div>
+        </MudAppBar>
+
+        <!-- ── Page Content ──────────────────────────────── -->
+        <MudMainContent Class="ha-main">
+            <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pa-0">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+
+    </MudLayout>
+}
+
+@code {
+    private MudTheme _theme = new MudTheme
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary        = "#1a237e",
+            PrimaryDarken  = "#0d1b6e",
+            PrimaryLighten = "#3949ab",
+            Secondary      = "#f9a825",
+            Background     = "#f4f6fb",
+            Surface        = "#ffffff",
+            AppbarBackground = "#f4f6fb",
+            DrawerBackground = "#1a1f3c",
+            DrawerText     = "#c5cae9",
+            DrawerIcon     = "#7986cb",
+            TextPrimary    = "#1a237e",
+            TextSecondary  = "#546e7a",
+            Success        = "#2e7d32",
+            Warning        = "#f9a825",
+            Error          = "#c62828",
+            Info           = "#0277bd",
+            TableLines     = "#e8edf5",
+        },
+        Typography = new Typography
+        {
+            Default = new Default { FontFamily = new[] { "DM Sans", "sans-serif" } },
+            H5      = new H5     { FontFamily = new[] { "DM Serif Display", "serif" }, FontWeight = 400 },
+            H6      = new H6     { FontFamily = new[] { "DM Sans", "sans-serif" }, FontWeight = 700 },
+            Button  = new Button { FontFamily = new[] { "DM Sans", "sans-serif" }, FontWeight = 600, TextTransform = "none" },
+        }
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !Auth.IsAuthenticated)
+        {
+            Nav.NavigateTo("/login");
+        }
+    }
+    private void OnAuthChanged()
+    {
+        InvokeAsync(StateHasChanged);
+        if (!Auth.IsAuthenticated)
+            Nav.NavigateTo("/login");
+    }
+
+    private void Logout()
+    {
+        Auth.Logout();
+        Nav.NavigateTo("/login");
+    }
+
+    public void Dispose() => Auth.StateChanged -= OnAuthChanged;
+}

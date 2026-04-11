@@ -1,0 +1,21 @@
+@using MudBlazor
+
+<MudCard Class="@($"ha-stat-card {CssClass}")" Elevation="0"
+         Style="cursor:pointer" @onclick="OnClick">
+    <span class="ha-stat-icon">@Icon</span>
+    <div class="ha-stat-label">@Label</div>
+    <div class="ha-stat-value">@Value</div>
+    @if (!string.IsNullOrEmpty(SubText))
+    {
+        <div style="font-size:.78rem;opacity:.75;margin-top:6px">@SubText</div>
+    }
+</MudCard>
+
+@code {
+    [Parameter] public string Label    { get; set; } = string.Empty;
+    [Parameter] public string Value    { get; set; } = "0";
+    [Parameter] public string Icon     { get; set; } = "📊";
+    [Parameter] public string CssClass { get; set; } = "ha-card-blue";
+    [Parameter] public string SubText  { get; set; } = string.Empty;
+    [Parameter] public EventCallback  OnClick { get; set; }
+}
