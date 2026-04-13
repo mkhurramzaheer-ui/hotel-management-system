@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using HotelAdmin.Models;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -38,18 +39,20 @@ namespace HotelAdmin.Services
     {
         private readonly HttpClient _http;
         private readonly AuthStateService _auth;
-
-        public ApiHttpClient(HttpClient http, AuthStateService auth)
+        private readonly ILocalStorageService _localStorage;
+        public ApiHttpClient(HttpClient http, AuthStateService auth, ILocalStorageService localStorage)
         {
             _http = http;
             _auth = auth;
+            _localStorage = localStorage;
         }
 
         private void SetAuth()
         {
             if (!string.IsNullOrEmpty(_auth.Token))
-                _http.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _auth.Token);
+                 _localStorage.SetItemAsync("authToken", _auth.Token);
+            //_http.DefaultRequestHeaders.Authorization =
+            //        new AuthenticationHeaderValue("Bearer", _auth.Token);
         }
 
         public async Task<T?> GetAsync<T>(string url)
@@ -178,16 +181,18 @@ namespace HotelAdmin.Services
     // ═══════════════════════════════════════════════════════════════════════
     //  BOOKING Requests & Handlers
     // ═══════════════════════════════════════════════════════════════════════
-    public record GetBookingsRequest() : IRequest<List<BookingDto>>;
+    public record GetBookingsRequest() : IRequest<List<Booking>>;
     public record CreateBookingRequestCmd(CreateBookingRequest Booking) : IRequest<bool>;
     public record DeleteBookingRequest(int Id) : IRequest<bool>;
 
-    public class GetBookingsHandler : IRequestHandler<GetBookingsRequest, List<BookingDto>>
+    public class GetBookingsHandler : IRequestHandler<GetBookingsRequest, List<Booking>>
     {
         private readonly ApiHttpClient _api;
         public GetBookingsHandler(ApiHttpClient api) => _api = api;
-        public async Task<List<BookingDto>> HandleAsync(GetBookingsRequest request)
-            => await _api.GetAsync<List<BookingDto>>("api/Bookings") ?? new();
+        public async Task<List<Booking>> HandleAsync(GetBookingsRequest request)
+        {
+            return await _api.GetAsync<List<Booking>>("api/Bookings") ?? new();
+        }
     }
 
     public class CreateBookingHandler : IRequestHandler<CreateBookingRequestCmd, bool>
@@ -269,11 +274,14 @@ namespace HotelAdmin.Services
                 {
                     var response = JsonSerializer.Deserialize<LoginResponse>(content,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    return response ?? new LoginResponse { Success = true, Token = content };
+                    if (response!=null && !string.IsNullOrEmpty(response.Token))
+                    {
+                        return new LoginResponse { Success = true, Token = content };
+                    }
                 }
                 catch
                 {
-                    return new LoginResponse { Success = true, Token = content };
+                    return new LoginResponse { Success = false, Token = content };
                 }
             }
             return new LoginResponse { Success = false, Message = "Invalid credentials" };

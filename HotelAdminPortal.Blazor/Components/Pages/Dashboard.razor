@@ -155,7 +155,7 @@ else
                     <MudTh>Status</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd><strong>@(context.Customer?.FullName ?? $"#{context.CustomerId}")</strong></MudTd>
+                    <MudTd><strong>@(context.Customer?.FirstName ?? $"#{context.CustomerId}")</strong></MudTd>
                     <MudTd>@(context.Room?.RoomNumber ?? $"#{context.RoomId}")</MudTd>
                     <MudTd>@context.CheckInDate.ToString("MMM dd, yyyy")</MudTd>
                     <MudTd>@context.CheckOutDate.ToString("MMM dd, yyyy")</MudTd>
@@ -179,7 +179,7 @@ else
 
 @code {
     private DashboardStats _stats = new();
-    private List<BookingDto> _recentBookings = new();
+    private List<Booking> _recentBookings = new();
     private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
@@ -224,7 +224,7 @@ else
                 .Select(g => new RevenuePoint
                 {
                     Label  = new DateTime(DateTime.Now.Year, g.Key, 1).ToString("MMM"),
-                    Amount = g.Sum(x => x.TotalAmount)
+                    Amount = g.Sum(x =>(double) x.TotalAmount)
                 })
                 .ToList();
 

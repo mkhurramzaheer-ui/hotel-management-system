@@ -1,16 +1,21 @@
-using HotelAdminPortal.Blazor.Components;
+using Blazored.LocalStorage;
 using HotelAdmin.Services;
+using HotelAdminPortal.Blazor.Components;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Razor / Blazor ───────────────────────────────────────────────────────
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    .AddInteractiveServerComponents(options =>
+    {
+        options.DetailedErrors = true;
+    });
 
 // ── MudBlazor ────────────────────────────────────────────────────────────
 builder.Services.AddMudServices();
-
+builder.Services.AddBlazoredLocalStorage();
 // ── HTTP Client ──────────────────────────────────────────────────────────
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7001/";
 builder.Services.AddHttpClient<ApiHttpClient>(client =>
@@ -35,7 +40,7 @@ builder.Services.AddScoped<IRequestHandler<CreateCustomerRequest,   bool>,      
 builder.Services.AddScoped<IRequestHandler<UpdateCustomerRequest,   bool>,                                UpdateCustomerHandler>();
 builder.Services.AddScoped<IRequestHandler<DeleteCustomerRequest,   bool>,                                DeleteCustomerHandler>();
 
-builder.Services.AddScoped<IRequestHandler<GetBookingsRequest,      List<HotelAdmin.Models.BookingDto>>, GetBookingsHandler>();
+builder.Services.AddScoped<IRequestHandler<GetBookingsRequest,      List<HotelAdmin.Models.Booking>>, GetBookingsHandler>();
 builder.Services.AddScoped<IRequestHandler<CreateBookingRequestCmd, bool>,                               CreateBookingHandler>();
 builder.Services.AddScoped<IRequestHandler<DeleteBookingRequest,    bool>,                               DeleteBookingHandler>();
 

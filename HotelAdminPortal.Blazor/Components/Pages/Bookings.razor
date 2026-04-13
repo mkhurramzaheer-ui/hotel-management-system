@@ -67,10 +67,10 @@
                 <div class="ha-avatar-cell">
                     <MudAvatar Color="Color.Secondary" Size="Size.Small"
                                Style="font-size:.8rem;font-weight:700">
-                        @{ var name = context.Customer?.FullName ?? "?"; }
+                        @{ var name = context.Customer?.FirstName ?? "?"; }
                         @(name.Length > 0 ? char.ToUpper(name[0]) : '?')
                     </MudAvatar>
-                    <strong>@(context.Customer?.FullName ?? $"Customer #{context.CustomerId}")</strong>
+                    <strong>@(context.Customer?.FirstName ?? $"Customer #{context.CustomerId}")</strong>
                 </div>
             </MudTd>
             <MudTd>
@@ -124,7 +124,7 @@
 </MudCard>
 
 @code {
-    private List<BookingDto> _bookings = new();
+    private List<Booking> _bookings = new();
     private bool _loading = true;
     private string _searchStr = string.Empty;
 

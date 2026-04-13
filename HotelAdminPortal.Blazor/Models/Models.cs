@@ -1,3 +1,5 @@
+using HotelAdminPortal.Blazor.Components.Pages;
+
 namespace HotelAdmin.Models
 {
     // ─── Auth ───────────────────────────────────────────────────────────
@@ -54,6 +56,22 @@ namespace HotelAdmin.Models
     }
 
     // ─── Booking ─────────────────────────────────────────────────────────
+    public class Booking
+    {
+        public int Id { get; set; }
+        // Foreign keys
+        public int CustomerId { get; set; }
+        public int RoomId { get; set; }
+        // Navigation properties
+        public Customer Customer { get; set; } = null!;
+        public Room Room { get; set; } = null!;
+        public Billing? Billing { get; set; }
+        public DateTime CheckInDate { get; set; }
+        public DateTime CheckOutDate { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string Status { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
+    }
     public class BookingDto
     {
         public int Id { get; set; }

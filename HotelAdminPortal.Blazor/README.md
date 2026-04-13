@@ -90,7 +90,7 @@ Edit `appsettings.json`:
 For local development, edit `appsettings.Development.json`:
 ```json
 {
-  "ApiBaseUrl": "https://localhost:8080/"
+  "ApiBaseUrl": "http://localhost:8080/"
 }
 ```
 
@@ -98,7 +98,7 @@ For local development, edit `appsettings.Development.json`:
 
 ```bash
 dotnet run
-# Open https://localhost:8080
+# Open http://localhost:8080
 ```
 
 ---
